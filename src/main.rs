@@ -1,5 +1,5 @@
 pub mod entities;
 
 fn main() {
-    println!("Hello, LetOrNor!");
+    println!("Hello, LetOrNot!");
 }
