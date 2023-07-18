@@ -1,6 +1,6 @@
 use tonic::{Request, Response, Status};
 
-use crate::services::user::proto::user::{
+use crate::services::proto::user::{
     user_server::User, RegisterUserRequest, RegisterUserResponse, RegisteredUserResponseData,
 };
 

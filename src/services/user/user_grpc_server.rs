@@ -1,12 +1,10 @@
 use crate::services::{
     base::{GrpcServerConfig, GrpcServerConfigNewParam},
     grpc_server::LettGrpcServer,
+    proto::user::{user_server::UserServer, USER_FILE_DESCRIPTOR_SET},
 };
 
-use super::{
-    proto::user::{user_server::UserServer, USER_FILE_DESCRIPTOR_SET},
-    user_service::UserService,
-};
+use super::user_service::UserService;
 
 type TUserGrpcServer = UserServer<UserService>;
 pub struct UserGrpcServer {
