@@ -1,12 +1,17 @@
+use std::{env, path::PathBuf};
+
 fn main() {
     let protos_path = "proto";
-    let file_descriptor_path = "blabla";
+
+    //This outdir file defined by cargo
+    //If the package has a build script, this is set to the folder where the build script should place its output. See below for more information. (Only set during compilation.)
+    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+    let user_desciptor_path = out_dir.join("user_descriptor.bin");
 
     //Proto files will be compiled here & also reflection feature will be initialized here
     tonic_build::configure()
-        .build_server(true)
-        .build_client(false)
-        .file_descriptor_set_path("ReflectionFilePath")
+        .file_descriptor_set_path(user_desciptor_path)
         .compile(&["proto/user/v1/user.proto"], &[protos_path])
-        .expect("Error on proto files build");
+        .unwrap();
+    // .expect("Error on proto files build");
 }
