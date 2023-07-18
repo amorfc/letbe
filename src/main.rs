@@ -1,20 +1,16 @@
 use tonic::transport::Server;
 
-use crate::user::USER_FILE_DESCRIPTOR_SET;
+use crate::services::{grpc_server::LettGrpcServer, user::user_grpc_server::UserGrpcServer};
+
 pub mod entities;
-
-mod user {
-    use tonic::{include_file_descriptor_set, include_proto};
-
-    include_proto!("user");
-    pub(crate) const USER_FILE_DESCRIPTOR_SET: &[u8] =
-        include_file_descriptor_set!("user_descriptor");
-}
+pub mod services;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let user_gserver = UserGrpcServer::default();
+
     let reflection_service = tonic_reflection::server::Builder::configure()
-        .register_encoded_file_descriptor_set(USER_FILE_DESCRIPTOR_SET)
+        .register_encoded_file_descriptor_set(user_gserver.get_descriptor())
         .build()
         .unwrap();
 
@@ -24,6 +20,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Server::builder()
         .add_service(reflection_service)
+        .add_service(user_gserver.serve())
         .serve(addr.parse().unwrap())
         .await?;
 
