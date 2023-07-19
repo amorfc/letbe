@@ -1,5 +1,4 @@
-pub mod base;
-pub mod grpc_server;
+pub mod common;
 pub mod user;
 
 mod proto {

@@ -1,6 +1,8 @@
 use tonic::transport::Server;
 
-use crate::services::{grpc_server::LettGrpcServer, user::user_grpc_server::UserGrpcServer};
+use crate::services::{
+    common::grpc_server::LettGrpcServer, user::user_grpc_server::UserGrpcServer,
+};
 
 pub mod entities;
 pub mod services;
