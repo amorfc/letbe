@@ -1,6 +1,8 @@
 use crate::services::{
-    base::{GrpcServerConfig, GrpcServerConfigNewParam},
-    grpc_server::LettGrpcServer,
+    common::{
+        base::{GrpcServerConfig, GrpcServerConfigNewParam},
+        grpc_server::LettGrpcServer,
+    },
     proto::user::{user_server::UserServer, USER_FILE_DESCRIPTOR_SET},
 };
 
