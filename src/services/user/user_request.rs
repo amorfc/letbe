@@ -13,7 +13,6 @@ pub struct RequestUser {
         message = "Pelease enter a password between 10 and 30 char"
     ))]
     pub password: String,
-    // #[validate(required(message = "User type is required"))]
     pub user_type: String,
     #[validate(length(
         min = 10,
