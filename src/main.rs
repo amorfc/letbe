@@ -1,14 +1,18 @@
 use tonic::transport::Server;
 
-use crate::services::{
-    common::grpc_server::LettGrpcServer, user::user_grpc_server::UserGrpcServer,
+use crate::{
+    env_config::{set_environment, ENV_CONFIG},
+    services::{common::grpc_server::LettGrpcServer, user::user_grpc_server::UserGrpcServer},
 };
 
 pub mod entities;
+pub mod env_config;
 pub mod services;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    set_environment()?;
+
     let user_gserver = UserGrpcServer::default();
 
     let reflection_service = tonic_reflection::server::Builder::configure()
@@ -16,9 +20,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build()
         .unwrap();
 
-    let addr = "[::1]:50055";
-
-    println!("Hello, Lett runs on {}!", addr);
+    let addr = format!("{}:{}", ENV_CONFIG.host, ENV_CONFIG.host_port);
+    println!("Server running on {}", addr);
 
     Server::builder()
         .add_service(reflection_service)
