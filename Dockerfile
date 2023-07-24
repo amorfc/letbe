@@ -10,7 +10,5 @@ COPY . .
 #Build letbelication
 RUN cargo build --release --target x86_64-unknown-linux-musl
 
-# FROM scratch
-# COPY --from=builder /letbe/target/x86_64-unknown-linux-musl/release/letbe /letbe
 CMD ["cargo", "run","development", "--release"]
 EXPOSE 50055
