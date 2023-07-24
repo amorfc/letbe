@@ -19,7 +19,7 @@ dependencies = ["clean"]
 
 [tasks.dev-watch]
 command = "cargo"
-args = ["watch", "-x","run"]
+args = ["run","development","watch", "-x"]
 dependencies = ["clean"]
 
 [tasks.dev]
@@ -28,4 +28,17 @@ dependencies = [
     "test",
     "build",
     "dev-watch"
+]
+
+[tasks.prod-watch]
+command = "cargo"
+args = ["run","production","watch", "-x"]
+dependencies = ["clean"]
+
+[tasks.prod]
+dependencies = [
+    "format",
+    "test",
+    "build",
+    "prod-watch"
 ]
