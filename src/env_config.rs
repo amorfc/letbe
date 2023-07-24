@@ -14,20 +14,15 @@ pub struct Config {
     pub db_port: String,
     pub host: String,
     pub host_port: String,
+    pub env: ENV,
 }
 
-pub static ENV_CONFIG: Lazy<Config> = Lazy::new(|| {
-    let db = env::var("DB").expect("DATABASE_URL must be set");
-    let db_port = env::var("DB_PORT").expect("DATABASE_URL must be set");
-    let host = env::var("HOST").expect("DATABASE_URL must be set");
-    let host_port = env::var("HOST_PORT").expect("DATABASE_URL must be set");
-
-    Config {
-        db,
-        db_port,
-        host,
-        host_port,
-    }
+pub static ENV_CONFIG: Lazy<Config> = Lazy::new(|| Config {
+    db: env::var("DB").expect("DATABASE_URL must be set"),
+    db_port: env::var("DB_PORT").expect("DATABASE_URL must be set"),
+    host: env::var("HOST").expect("DATABASE_URL must be set"),
+    host_port: env::var("HOST_PORT").expect("DATABASE_URL must be set"),
+    env: ENV::from(env::var("ENV").expect("ENV must be set")),
 });
 
 impl Display for Config {
@@ -36,8 +31,9 @@ impl Display for Config {
         let db_port = format!("{}:{}", DB_PORT, self.db_port);
         let host = format!("{}:{}", HOST, self.host);
         let host_port = format!("{}:{}", HOST_PORT, self.host_port);
+        let env = format!("{}:{}", "ENV", self.env);
 
-        write!(f, "{}\n{}\n{}\n{}", db, db_port, host, host_port)
+        write!(f, "{}\n{}\n{}\n{}\n{}", db, db_port, host, host_port, env)
     }
 }
 
@@ -47,7 +43,7 @@ pub fn set_environment() -> Result<String, String> {
         .unwrap_or_else(|| ENV::Development.to_string());
 
     if let Err(e) = dotenv::from_filename(format!(".env.{}", environment)) {
-        return Err(e.to_string());
+        panic!("Failed to load .env.{} file: {}", environment, e)
     };
 
     println!("Environment: {}", environment);
@@ -58,6 +54,16 @@ pub fn set_environment() -> Result<String, String> {
 pub enum ENV {
     Development,
     Production,
+}
+
+impl From<String> for ENV {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            PRODUCTION_STR => ENV::Production,
+            DEVELOPMENT_STR => ENV::Development,
+            _ => ENV::Development,
+        }
+    }
 }
 
 impl Display for ENV {
