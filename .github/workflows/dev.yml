@@ -6,7 +6,7 @@ on:
       - dev
 environment: dev
 env:
-  ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
+  ENVIRONMENT: ${{ env.secrets.ENVIRONMENT }}
 
   HOST: ${{ secrets.HOST }}
   HOST_PORT: ${{ secrets.HOST_PORT }}
