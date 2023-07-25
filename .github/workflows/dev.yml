@@ -5,13 +5,18 @@ on:
     branches:
       - dev
 
-env:
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+# env:
+#   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+#   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: developoment
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
     steps:
       - name: Make envfile
         uses: SpicyPizza/create-envfile@v2.0
