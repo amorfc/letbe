@@ -24,7 +24,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    environment: dev
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
     steps:
       - name: Any Name Bash Test Step
         shell: bash
