@@ -2,7 +2,7 @@ version: "3"
 services:
   api:
     container_name: letbe-grpc-server
-    image: fermetin/letbe-api
+    image: fermetin/letbe-api-development
     build:
       context: .
       dockerfile: Dockerfile
