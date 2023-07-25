@@ -8,18 +8,18 @@ on:
 env:
   ENVIRONMENT: ${{ secrets.dev.ENVIRONMENT }}
 
-   HOST: ${{ secrets.dev.HOST }}
+  HOST: ${{ secrets.dev.HOST }}
   HOST_PORT: ${{ secrets.dev.HOST_PORT }}
 
-   DB: ${{ secrets.dev.DB }}
+  DB: ${{ secrets.dev.DB }}
   DB_PORT: ${{ secrets.dev.DB_PORT }}
   POSTGRES_USER: ${{ secrets.dev.POSTGRES_USER }}
   POSTGRES_PASSWORD: ${{ secrets.dev.POSTGRES_PASSWORD }}
 
-   DOCKER_USERNAME: ${{ secrets.dev.DOCKER_USERNAME }}
+  DOCKER_USERNAME: ${{ secrets.dev.DOCKER_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.dev.DOCKER_PASSWORD }}
 
-   LINODE_IP: ${{ vars.LINODE_IP }}
+  LINODE_IP: ${{ vars.LINODE_IP }}
 
 jobs:
   build:
