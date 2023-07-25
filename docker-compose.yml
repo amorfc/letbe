@@ -1,8 +1,8 @@
 version: "3"
 services:
   api:
-    image: fermetin/letbe-api
     container_name: letbe-grpc-server
+    image: fermetin/letbe-api
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,5 +10,22 @@ services:
       - .env
     ports:
       - "50055:50055"
-#    depends_on:
-#      - db
+    depends_on:
+      - db
+
+  db:
+    container_name: letbe-postgres-db
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /data/postgres
+    volumes:
+      - postgres-db:/data/postgres
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres-db:
+    driver: local
