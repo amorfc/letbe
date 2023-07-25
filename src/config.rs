@@ -38,7 +38,7 @@ impl Display for Config {
     }
 }
 
-pub fn set_environment() -> Result<String, String> {
+pub fn init_environment_vars() -> Result<String, String> {
     dotenvy::dotenv().ok();
 
     let environment = env::var(ENVIRONMENT).unwrap_or_else(|_| ENV::Development.to_string());
