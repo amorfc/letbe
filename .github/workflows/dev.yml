@@ -6,18 +6,18 @@ on:
       - dev
 
 env:
-  ENVIRONMENT: ${{ secrets.dev.ENVIRONMENT }}
+  ENVIRONMENT: ${{ env.dev.ENVIRONMENT }}
 
-  HOST: ${{ secrets.dev.HOST }}
-  HOST_PORT: ${{ secrets.dev.HOST_PORT }}
+  HOST: ${{ env.dev.HOST }}
+  HOST_PORT: ${{ env.dev.HOST_PORT }}
 
-  DB: ${{ secrets.dev.DB }}
-  DB_PORT: ${{ secrets.dev.DB_PORT }}
-  POSTGRES_USER: ${{ secrets.dev.POSTGRES_USER }}
-  POSTGRES_PASSWORD: ${{ secrets.dev.POSTGRES_PASSWORD }}
+  DB: ${{ env.dev.DB }}
+  DB_PORT: ${{ env.dev.DB_PORT }}
+  POSTGRES_USER: ${{ env.dev.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ env.dev.POSTGRES_PASSWORD }}
 
-  DOCKER_USERNAME: ${{ secrets.dev.DOCKER_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.dev.DOCKER_PASSWORD }}
+  DOCKER_USERNAME: ${{ env.dev.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ env.dev.DOCKER_PASSWORD }}
 
   LINODE_IP: ${{ vars.LINODE_IP }}
 
