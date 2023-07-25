@@ -1,25 +1,25 @@
 name: "Build, Test and Deploy to Dev Server"
+with:
+  env:
+    ENVIRONMENT: ${{ secrets.dev.ENVIRONMENT }}
+
+    HOST: ${{ secrets.dev.HOST }}
+    HOST_PORT: ${{ secrets.dev.HOST_PORT }}
+
+    DB: ${{ secrets.dev.DB }}
+    DB_PORT: ${{ secrets.dev.DB_PORT }}
+    POSTGRES_USER: ${{ secrets.dev.POSTGRES_USER }}
+    POSTGRES_PASSWORD: ${{ secrets.dev.POSTGRES_PASSWORD }}
+
+    DOCKER_USERNAME: ${{ secrets.dev.DOCKER_USERNAME }}
+    DOCKER_PASSWORD: ${{ secrets.dev.DOCKER_PASSWORD }}
+
+    LINODE_IP: ${{ vars.dev.LINODE_IP }}
 
 on:
   push:
     branches:
       - dev
-environment: dev
-env:
-  ENVIRONMENT: ${{ env.secrets.ENVIRONMENT }}
-
-  HOST: ${{ secrets.HOST }}
-  HOST_PORT: ${{ secrets.HOST_PORT }}
-
-  DB: ${{ secrets.DB }}
-  DB_PORT: ${{ secrets.DB_PORT }}
-  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-
-  LINODE_IP: ${{ vars.LINODE_IP }}
 
 jobs:
   build:
