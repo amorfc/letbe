@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - run: echo ${{ job.environment }}
-      - run: echo ${{ env.ENV_FILE }}
-      - run: echo ${{ secrets.DOCKER_USERNAME }}
+      - run: echo $environment
+      - run: echo $ENV_FILE
+      - run: echo $DOCKER_USERNAME
       # - name: Set ENV file
       #   env:
       #     ENV_FILE: ${{ secrets.DEV_ENV_FILE }}
