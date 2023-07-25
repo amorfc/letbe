@@ -25,22 +25,16 @@ jobs:
       POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
 
     steps:
-      - name: Make envfile
-        uses: SpicyPizza/create-envfile@v2.0
-        with:
-          envkey_ENVIRONMENT: ${{ env.ENVIRONMENT }}
-
-          envkey_HOST: ${{env.HOST}}
-          envkey_HOST_PORT: ${{env.HOST_PORT}}
-
-          envkey_DB: ${{env.DB}}
-          envkey_DB_PORT: ${{env.DB_PORT}}
-          envkey_POSTGRES_USER: ${{env.POSTGRES_USER}}
-          envkey_POSTGRES_PASSWORD: ${{env.POSTGRES_PASSWORD}}
-
-          file_name: .env
-          fail_on_empty: false
-          sort_keys: false
+      - name: create env file
+        run: |
+          touch .env
+          echo ENVIRONMENT=${{  env.ENVIRONMENT  }} >> .env
+          echo HOST=${{ env.HOST }} >> .env
+          echo HOST_PORT=${{ env.HOST_PORT }} >> .env
+          echo DB=${{ env.DB }} >> .env
+          echo DB_PORT=${{ env.DB_PORT }} >> .env
+          echo POSTGRES_USER=${{ env.POSTGRES_USER }} >> .env
+          echo POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }} >> .env
 
       - name: Checkout code
         uses: actions/checkout@v2
@@ -87,11 +81,11 @@ jobs:
     needs: build
     environment: development
     env:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      DOCKER_USERNAME: ${{ env.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ env.DOCKER_PASSWORD }}
 
-      LINODE_IP: ${{ secrets.LINODE_IP }}
-      LINODE_PASSWORD: ${{ secrets.LINODE_PASSWORD }}
+      LINODE_IP: ${{ env.LINODE_IP }}
+      LINODE_PASSWORD: ${{ env.LINODE_PASSWORD }}
 
     runs-on: ubuntu-latest
 
