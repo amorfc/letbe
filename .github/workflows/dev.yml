@@ -82,12 +82,30 @@ jobs:
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       LINODE_IP: ${{ secrets.LINODE_IP }}
       LINODE_PASSWORD: ${{ secrets.LINODE_PASSWORD }}
+      ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
+      HOST: ${{ secrets.HOST }}
+      HOST_PORT: ${{ secrets.HOST_PORT }}
+      DB: ${{ secrets.DB }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: create env file
+        run: |
+          touch .env
+          echo ENVIRONMENT=${{ env.ENVIRONMENT }} >> .env
+          echo HOST=${{ env.HOST }} >> .env
+          echo HOST_PORT=${{ env.HOST_PORT }} >> .env
+          echo DB=${{ env.DB }} >> .env
+          echo DB_PORT=${{ env.DB_PORT }} >> .env
+          echo POSTGRES_USER=${{ env.POSTGRES_USER }} >> .env
+          echo POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }} >> .env
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
