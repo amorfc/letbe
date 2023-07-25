@@ -12,6 +12,8 @@ jobs:
 
     steps:
       - run: echo ${{ job.environment }}
+      - run: echo ${{ env.ENV_FILE }}
+      - run: echo ${{ secrets.DOCKER_USERNAME }}
       # - name: Set ENV file
       #   env:
       #     ENV_FILE: ${{ secrets.DEV_ENV_FILE }}
