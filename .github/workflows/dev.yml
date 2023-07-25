@@ -98,8 +98,8 @@ jobs:
       - name: Install sshpass
         run: sudo apt-get install sshpass
 
-      - name: Copy docker-compose.yml to linode
-        run: sshpass -v -p ${{ env.LINODE_PASSWORD }} scp -o StrictHostKeyChecking=no docker-compose.yml root@${{ env.LINODE_IP }}:~
+      - name: Copy docker-compose.yml and .env to remote server
+        run: sshpass -v -p ${{ env.LINODE_PASSWORD }} scp -o StrictHostKeyChecking=no docker-compose.yml .env root@${{ env.LINODE_IP }}:~
 
       - name: Deploy
         uses: appleboy/ssh-action@master
