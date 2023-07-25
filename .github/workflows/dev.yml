@@ -12,10 +12,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: developoment
+    environment: development
     env:
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      DOCKER_USERNAME: ${{ secrets.T_DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.T_DOCKER_PASSWORD }}
 
     steps:
       - name: Make envfile
