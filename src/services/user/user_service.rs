@@ -23,7 +23,7 @@ impl User for UserService {
         let user = request.into_inner();
         let request_user = RequestUser::from(user);
 
-        RequestValidator::new(request_user).validate_for_response()?;
+        RequestValidator::new(&request_user).validate_for_response()?;
 
         // let user = User::new(user.name, user.email, user.password);
         // let user = self.user_repository.save(user).await?;

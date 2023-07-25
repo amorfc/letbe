@@ -1,12 +1,12 @@
 use tonic::Status;
 use validator::{Validate, ValidationErrors, ValidationErrorsKind};
 
-pub struct RequestValidator<T: Validate> {
-    inner: T,
+pub struct RequestValidator<'a, T: Validate> {
+    inner: &'a T,
 }
 
-impl<T: Validate> RequestValidator<T> {
-    pub fn new(inner: T) -> Self {
+impl<'a, T: Validate> RequestValidator<'a, T> {
+    pub fn new(inner: &'a T) -> Self {
         Self { inner }
     }
 
