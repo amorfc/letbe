@@ -7,9 +7,17 @@ on:
 
 jobs:
   build:
+    environment: dev
     runs-on: ubuntu-latest
 
     steps:
+      - run: echo ${{ job.environment.name }}
+      # - name: Set ENV file
+      #   env:
+      #     ENV_FILE: ${{ secrets.DEV_ENV_FILE }}
+      #   run: |
+      #     echo "$ENV_FILE" > .env
+
       - name: Checkout code
         uses: actions/checkout@v2
 
