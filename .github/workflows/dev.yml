@@ -11,9 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - run: echo $environment
-      - run: echo $ENV_FILE
-      - run: echo $DOCKER_USERNAME
       # - name: Set ENV file
       #   env:
       #     ENV_FILE: ${{ secrets.DEV_ENV_FILE }}
@@ -63,6 +60,7 @@ jobs:
             *.cache-to=type=gha,mode=max
   deploy:
     needs: build
+    environment: dev
     runs-on: ubuntu-latest
 
     steps:
