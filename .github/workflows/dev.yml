@@ -5,22 +5,6 @@ on:
     branches:
       - dev
 
-env:
-  ENVIRONMENT: ${{ env.dev.ENVIRONMENT }}
-
-  HOST: ${{ env.dev.HOST }}
-  HOST_PORT: ${{ env.dev.HOST_PORT }}
-
-  DB: ${{ env.dev.DB }}
-  DB_PORT: ${{ env.dev.DB_PORT }}
-  POSTGRES_USER: ${{ env.dev.POSTGRES_USER }}
-  POSTGRES_PASSWORD: ${{ env.dev.POSTGRES_PASSWORD }}
-
-  DOCKER_USERNAME: ${{ env.dev.DOCKER_USERNAME }}
-  DOCKER_PASSWORD: ${{ env.dev.DOCKER_PASSWORD }}
-
-  LINODE_IP: ${{ vars.LINODE_IP }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
