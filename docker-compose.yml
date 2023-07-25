@@ -2,10 +2,12 @@ version: "3"
 services:
   api:
     image: fermetin/letbe-api
-    container_name: server
+    container_name: letbe-grpc-server
     build:
       context: .
       dockerfile: Dockerfile
+    env_file:
+      - .env
     ports:
       - "50055:50055"
 #    depends_on:

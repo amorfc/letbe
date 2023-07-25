@@ -5,6 +5,7 @@ const DB: &str = "DB";
 const DB_PORT: &str = "DB_PORT";
 const HOST: &str = "HOST";
 const HOST_PORT: &str = "HOST_PORT";
+const ENVIRONMENT: &str = "ENVIRONMENT";
 
 const PRODUCTION_STR: &str = "production";
 const DEVELOPMENT_STR: &str = "development";
@@ -18,11 +19,11 @@ pub struct Config {
 }
 
 pub static ENV_CONFIG: Lazy<Config> = Lazy::new(|| Config {
-    db: env::var("DB").expect("DATABASE_URL must be set"),
-    db_port: env::var("DB_PORT").expect("DATABASE_URL must be set"),
-    host: env::var("HOST").expect("DATABASE_URL must be set"),
-    host_port: env::var("HOST_PORT").expect("DATABASE_URL must be set"),
-    env: ENV::from(env::var("ENV").expect("ENV must be set")),
+    db: env::var(DB).expect("DATABASE_URL must be set"),
+    db_port: env::var(DB_PORT).expect("DATABASE_URL must be set"),
+    host: env::var(HOST).expect("DATABASE_URL must be set"),
+    host_port: env::var(HOST_PORT).expect("DATABASE_URL must be set"),
+    env: ENV::from(env::var(ENVIRONMENT).expect("ENVIRONMENT must be set")),
 });
 
 impl Display for Config {
@@ -38,13 +39,9 @@ impl Display for Config {
 }
 
 pub fn set_environment() -> Result<String, String> {
-    let environment = env::args()
-        .nth(1)
-        .unwrap_or_else(|| ENV::Development.to_string());
+    dotenvy::dotenv().ok();
 
-    if let Err(e) = dotenv::from_filename(format!(".env.{}", environment)) {
-        panic!("Failed to load .env.{} file: {}", environment, e)
-    };
+    let environment = env::var(ENVIRONMENT).unwrap_or_else(|_| ENV::Development.to_string());
 
     println!("Environment: {}", environment);
     println!("Configs: {}", ENV_CONFIG.to_string());

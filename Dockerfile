@@ -1,14 +1,22 @@
-FROM messense/rust-musl-cross:x86_64-musl as builder
+
+FROM messense/rust-musl-cross:x86_64-musl as chef
 RUN cargo install cargo-chef
 WORKDIR /letbe
 
 RUN apt-get update && apt-get install -y protobuf-compiler
 
-#Copy source code
+FROM chef AS planner
+# Copy source code from previous stage
 COPY . .
 
-#Build letbelication
-RUN cargo build --release --target x86_64-unknown-linux-musl
+FROM chef AS builder
+# Copy source code from previous stage
+COPY . .
+# Build application
+RUN cargo build --target x86_64-unknown-linux-musl
 
-CMD ["cargo", "run","development", "--release"]
+# Create a new stage with a minimal image
+FROM scratch
+COPY --from=builder /letbe/target/x86_64-unknown-linux-musl/debug/letbe /letbe
+ENTRYPOINT ["/letbe"]
 EXPOSE 50055
