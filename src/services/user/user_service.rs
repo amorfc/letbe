@@ -36,6 +36,8 @@ impl User for UserService {
                 token: "token".to_string(),
             }),
         }))
+    }
+}
 
         // Err(Status::unimplemented("Not implemented"))
     }
