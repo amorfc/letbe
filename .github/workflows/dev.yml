@@ -13,11 +13,6 @@ jobs:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
     steps:
-      - name: Any Name Bash Test Step
-        shell: bash
-        run: |
-          echo "DOCKER_USERNAME: $DOCKER_USERNAME"
-          echo "DOCKER_PASSWORD: $DOCKER_PASSWORD"
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -61,34 +56,14 @@ jobs:
             *.cache-to=type=gha,mode=max
   deploy:
     needs: build
-    # environment: dev
-    # env:
-    #   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-    #   DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-
-    #   ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
-
-    #   DB: ${{ secrets.DB }}
-    #   DB_PORT: ${{ secrets.DB_PORT }}
-
-    #   HOST: ${{ secrets.HOST }}
-    #   HOST_PORT: ${{ secrets.HOST_PORT }}
-
-    #   POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-    #   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-
-    #   LINODE_IP: ${{ vars.LINODE_IP }}
-    #   LINODE_PASSWORD: ${{ secrets.LINODE_PASSWORD }}
+    environment: dev
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
     runs-on: ubuntu-latest
 
     steps:
-      - name: Any Name Bash Test Step
-        shell: bash
-        run: |
-          echo "DOCKER_USERNAME: $DOCKER_USERNAME"
-          echo "DOCKER_PASSWORD: $DOCKER_PASSWORD"
-
       - name: Checkout code
         uses: actions/checkout@v2
 
