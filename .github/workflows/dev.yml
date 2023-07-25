@@ -16,19 +16,19 @@ jobs:
     env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      ENVIRONMENT: ${{secrets.ENVIRONMENT}}
-      HOST: ${{secrets.HOST}}
-      HOST_PORT: ${{secrets.HOST_PORT}}
-      DB: ${{secrets.DB}}
-      DB_PORT: ${{secrets.DB_PORT}}
-      POSTGRES_USER: ${{secrets.POSTGRES_USER}}
-      POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
+      ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
+      HOST: ${{ secrets.HOST }}
+      HOST_PORT: ${{ secrets.HOST_PORT }}
+      DB: ${{ secrets.DB }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 
     steps:
       - name: create env file
         run: |
           touch .env
-          echo ENVIRONMENT=${{  env.ENVIRONMENT  }} >> .env
+          echo ENVIRONMENT=${{ env.ENVIRONMENT }} >> .env
           echo HOST=${{ env.HOST }} >> .env
           echo HOST_PORT=${{ env.HOST_PORT }} >> .env
           echo DB=${{ env.DB }} >> .env
@@ -83,7 +83,6 @@ jobs:
     env:
       DOCKER_USERNAME: ${{ env.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ env.DOCKER_PASSWORD }}
-
       LINODE_IP: ${{ env.LINODE_IP }}
       LINODE_PASSWORD: ${{ env.LINODE_PASSWORD }}
 
