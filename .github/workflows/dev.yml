@@ -8,11 +8,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: dev
+
     env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
     steps:
+      - name: Make envfile
+        uses: SpicyPizza/create-envfile@v2.0
+        with:
+          envkey_ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
+
+          envkey_HOST: ${{secrets.HOST}}
+          envkey_HOST_PORT: ${{secrets.HOST_PORT}}
+
+          envkey_DB: ${{secrets.DB}}
+          envkey_DB_PORT: ${{secrets.DB_PORT}}
+          envkey_POSTGRES_USER: ${{secrets.POSTGRES_USER}}
+          envkey_POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
+
+          file_name: .env
+          fail_on_empty: false
+          sort_keys: false
+
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -44,8 +61,8 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{env.DOCKER_USERNAME}}
-          password: ${{env.DOCKER_PASSWORD}}
+          username: $DOCKER_USERNAME
+          password: $DOCKER_PASSWORD
 
       - name: Build and push Docker images
         uses: docker/bake-action@v2.3.0
@@ -60,6 +77,9 @@ jobs:
     env:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      LINODE_IP: ${{ secrets.LINODE_IP }}
+      LINODE_PASSWORD: ${{ secrets.LINODE_PASSWORD }}
 
     runs-on: ubuntu-latest
 
