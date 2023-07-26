@@ -8,6 +8,7 @@ use crate::{
 pub mod entities;
 pub mod env_config;
 pub mod services;
+pub type LetDbConnection = DatabaseConnection;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
