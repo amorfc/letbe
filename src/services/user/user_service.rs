@@ -1,16 +1,18 @@
 use tonic::{Request, Response, Status};
 
-use crate::services::{
-    common::request::request_validator::RequestValidator,
-    proto::user::{
-        user_server::User, RegisterUserRequest, RegisterUserResponse, RegisteredUserResponseData,
+use crate::{
+    services::{
+        common::request::request_validator::RequestValidator,
+        proto::user::{
+            user_server::User, RegisterUserRequest, RegisterUserResponse,
+            RegisteredUserResponseData,
+        },
+        user::user_request::RequestUser,
     },
-    user::user_request::RequestUser,
+    LetDbConnection,
 };
 
-pub struct UserService {
-    // user_repository: Box<dyn UserRepository>,
-}
+pub struct UserService {}
 
 #[tonic::async_trait]
 impl User for UserService {
@@ -26,7 +28,6 @@ impl User for UserService {
         RequestValidator::new(&request_user).validate_for_response()?;
 
         // let user = User::new(user.name, user.email, user.password);
-        // let user = self.user_repository.save(user).await?;
         // let user = RegisteredUserResponseData::from(user);
         // let response = RegisterUserResponse::new(user);
         // Ok(Response::new(response))
@@ -39,12 +40,8 @@ impl User for UserService {
     }
 }
 
-        // Err(Status::unimplemented("Not implemented"))
-    }
-}
-
-impl Default for UserService {
-    fn default() -> Self {
+impl UserService {
+    pub fn new(db_conn: LetDbConnection) -> Self {
         Self {}
     }
 }
