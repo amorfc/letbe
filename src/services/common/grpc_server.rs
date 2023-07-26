@@ -1,3 +1,5 @@
-pub trait LettGrpcServer<T> {
-    fn serve(&self) -> T;
+use crate::LetDbConnection;
+
+pub trait LetGrpcServer<T> {
+    fn serve(&self, db_conn: LetDbConnection) -> T;
 }

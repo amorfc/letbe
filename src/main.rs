@@ -1,19 +1,25 @@
+use sea_orm::DatabaseConnection;
 use tonic::transport::Server;
 
 use crate::{
-    env_config::{set_environment, ENV_CONFIG},
-    services::{common::grpc_server::LettGrpcServer, user::user_grpc_server::UserGrpcServer},
+    config::{init_environment_vars, ENV_CONFIG},
+    infra::db_initializor::{DatabaseInitializer, DatabaseInitializerImpl},
+    services::{common::grpc_server::LetGrpcServer, user::user_grpc_server::UserGrpcServer},
 };
 
+pub mod config;
 pub mod entities;
-pub mod env_config;
+pub mod infra;
+pub mod repositories;
 pub mod services;
+
 pub type LetDbConnection = DatabaseConnection;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    set_environment()?;
+    init_environment_vars()?;
 
+    let db_conn = DatabaseInitializer::connect().await?;
     let user_gserver = UserGrpcServer::default();
 
     let reflection_service = tonic_reflection::server::Builder::configure()
@@ -26,7 +32,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Server::builder()
         .add_service(reflection_service)
-        .add_service(user_gserver.serve())
+        .add_service(user_gserver.serve(db_conn.to_owned()))
         .serve(addr.parse().unwrap())
         .await?;
 
