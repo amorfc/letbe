@@ -10,7 +10,6 @@ use crate::{
 pub mod config;
 pub mod entities;
 pub mod infra;
-pub mod repositories;
 pub mod services;
 
 pub type LetDbConnection = DatabaseConnection;

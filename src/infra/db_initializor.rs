@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use sea_orm::{ConnectOptions, ConnectionTrait, Database, DbBackend, DbErr, Statement};
+use sea_orm::{ConnectOptions, ConnectionTrait, Database, DbErr, Statement};
 
 use crate::{config::ENV_CONFIG, LetDbConnection};
 
