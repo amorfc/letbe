@@ -1,3 +1,5 @@
+use migration::{Migrator, MigratorTrait};
+
 use sea_orm::DatabaseConnection;
 use tonic::transport::Server;
 
@@ -18,8 +20,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     init_environment_vars()?;
     let db = DatabaseInitializer::connect().await?;
 
+    Migrator::up(&db, None).await?;
 
-    let db_conn = DatabaseInitializer::connect().await?;
     let user_gserver = UserGrpcServer::default();
 
     let reflection_service = tonic_reflection::server::Builder::configure()
