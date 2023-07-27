@@ -6,11 +6,13 @@ const DB_PORT: &str = "DB_PORT";
 const HOST: &str = "HOST";
 const HOST_PORT: &str = "HOST_PORT";
 const ENVIRONMENT: &str = "ENVIRONMENT";
+const POSTGRES_USER: &str = "POSTGRES_USER";
+const POSTGRES_PASSWORD: &str = "POSTGRES_PASSWORD";
 
 const PRODUCTION_STR: &str = "production";
 const DEVELOPMENT_STR: &str = "development";
 
-const DB_NAME: &str = "let";
+const DB_NAME: &str = "let_db";
 
 pub struct Config {
     pub db: String,
@@ -29,8 +31,8 @@ pub static ENV_CONFIG: Lazy<Config> = Lazy::new(|| Config {
     host: env::var(HOST).expect("DATABASE_URL must be set"),
     host_port: env::var(HOST_PORT).expect("DATABASE_URL must be set"),
     env: ENV::from(env::var(ENVIRONMENT).expect("ENVIRONMENT must be set")),
-    postgres_user: env::var("POSTGRES_USER").expect("POSTGRES_USER must be set"),
-    postgres_password: env::var("POSTGRES_PASSWORD").expect("POSTGRES_PASSWORD must be set"),
+    postgres_user: env::var(POSTGRES_USER).expect("POSTGRES_USER must be set"),
+    postgres_password: env::var(POSTGRES_PASSWORD).expect("POSTGRES_PASSWORD must be set"),
     db_name: DB_NAME.to_string(),
 });
 
