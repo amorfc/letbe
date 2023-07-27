@@ -9,8 +9,6 @@ pub struct Model {
     pub password: String,
     // Represents a db column using `UserType` active enum
     pub user_type: UserType,
-    // Represents a db column using `Gender` active enum
-    pub gender: Gender,
     pub name: String,
     pub surname: String,
 }
@@ -23,15 +21,6 @@ pub enum UserType {
     Individual,
     #[sea_orm(string_value = "Corporation")]
     Corporation,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum)]
-#[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "gender_enum")]
-pub enum Gender {
-    #[sea_orm(string_value = "Male")]
-    Male,
-    #[sea_orm(string_value = "Female")]
-    Female,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
