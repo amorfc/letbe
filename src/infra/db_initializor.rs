@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use sea_orm::{ConnectOptions, ConnectionTrait, Database, DbErr, Statement};
+use sea_orm::{ConnectOptions, Database, DbErr};
 
 use crate::{config::ENV_CONFIG, LetDbConnection};
 
@@ -13,10 +13,6 @@ pub trait DatabaseInitializerImpl {
     fn db_url() -> String;
     fn connection_opt(db_url: String) -> Self::ConnOptType;
     async fn connect() -> Result<Self::ConnType, Self::ErrorType>;
-    async fn create_connect_db(
-        db_name: String,
-        db: &Self::ConnType,
-    ) -> Result<Self::ConnType, Self::ErrorType>;
 }
 pub struct DatabaseInitializer {}
 
@@ -30,19 +26,18 @@ impl DatabaseInitializerImpl for DatabaseInitializer {
         let opt = Self::connection_opt(Self::db_url());
 
         let db_conn = Database::connect(opt).await?;
-        let db_conn =
-            DatabaseInitializer::create_connect_db(ENV_CONFIG.db_name.to_owned(), &db_conn).await?;
 
         Ok(db_conn)
     }
 
     fn db_url() -> String {
         format!(
-            "postgres://{}:{}@{}:{}",
+            "postgres://{}:{}@{}:{}/{}",
             ENV_CONFIG.postgres_user,
             ENV_CONFIG.postgres_password,
             ENV_CONFIG.db,
             ENV_CONFIG.db_port,
+            ENV_CONFIG.db_name
         )
     }
 
@@ -56,22 +51,5 @@ impl DatabaseInitializerImpl for DatabaseInitializer {
             .max_lifetime(Duration::from_secs(30))
             .sqlx_logging(true)
             .to_owned()
-    }
-
-    async fn create_connect_db(
-        db_name: String,
-        db: &Self::ConnType,
-    ) -> Result<Self::ConnType, Self::ErrorType> {
-        db.execute(Statement::from_string(
-            db.get_database_backend(),
-            format!("CREATE DATABASE \"{}\";", db_name),
-        ))
-        .await?;
-
-        let database_url = format!("{}/{}", Self::db_url(), db_name);
-        let opt = Self::connection_opt(database_url);
-
-        let db_conn = Database::connect(opt).await?;
-        Ok(db_conn)
     }
 }
