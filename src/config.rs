@@ -48,15 +48,12 @@ impl Display for Config {
     }
 }
 
-pub fn init_environment_vars() -> Result<String, String> {
+pub fn init_environment_vars() -> Result<(), String> {
     dotenvy::dotenv().ok();
 
-    let environment = env::var(ENVIRONMENT).unwrap_or_else(|_| ENV::Development.to_string());
+    println!("Env Configs \n{}", ENV_CONFIG.to_string());
 
-    println!("Environment: {}", environment);
-    println!("Configs: {}", ENV_CONFIG.to_string());
-
-    Ok(String::from("Environment Successfully Set!"))
+    Ok(())
 }
 pub enum ENV {
     Development,
