@@ -11,3 +11,5 @@ Cargo.lock
 .env.development
 .env.production
 .env
+.rustc_info.json
+CACHEDIR.TAG

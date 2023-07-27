@@ -1,7 +1,7 @@
 use crate::services::{
     common::{
         base::{GrpcServerConfig, GrpcServerConfigNewParam},
-        grpc_server::LettGrpcServer,
+        grpc_server::LetGrpcServer,
     },
     proto::user::{user_server::UserServer, USER_FILE_DESCRIPTOR_SET},
 };
@@ -31,8 +31,8 @@ impl Default for UserGrpcServer {
     }
 }
 
-impl LettGrpcServer<TUserGrpcServer> for UserGrpcServer {
+impl LetGrpcServer<TUserGrpcServer> for UserGrpcServer {
     fn serve(&self) -> TUserGrpcServer {
-        UserServer::new(UserService::default())
+        UserServer::new(UserService::new())
     }
 }

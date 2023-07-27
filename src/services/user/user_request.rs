@@ -2,7 +2,7 @@ use validator::Validate;
 
 use crate::services::proto::user::RegisterUserRequest;
 
-#[derive(Debug, Validate)]
+#[derive(Debug, Validate, Clone)]
 pub struct RequestUser {
     #[validate(email(message = "Please enter a valid email"))]
     pub email: String,

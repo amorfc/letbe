@@ -1,3 +1,3 @@
-pub trait LettGrpcServer<T> {
+pub trait LetGrpcServer<T> {
     fn serve(&self) -> T;
 }

@@ -8,9 +8,7 @@ use crate::services::{
     user::user_request::RequestUser,
 };
 
-pub struct UserService {
-    // user_repository: Box<dyn UserRepository>,
-}
+pub struct UserService {}
 
 #[tonic::async_trait]
 impl User for UserService {
@@ -23,10 +21,9 @@ impl User for UserService {
         let user = request.into_inner();
         let request_user = RequestUser::from(user);
 
-        RequestValidator::new(request_user).validate_for_response()?;
+        RequestValidator::new(&request_user).validate_for_response()?;
 
         // let user = User::new(user.name, user.email, user.password);
-        // let user = self.user_repository.save(user).await?;
         // let user = RegisteredUserResponseData::from(user);
         // let response = RegisterUserResponse::new(user);
         // Ok(Response::new(response))
@@ -36,13 +33,11 @@ impl User for UserService {
                 token: "token".to_string(),
             }),
         }))
-
-        // Err(Status::unimplemented("Not implemented"))
     }
 }
 
-impl Default for UserService {
-    fn default() -> Self {
+impl UserService {
+    pub fn new() -> Self {
         Self {}
     }
 }

@@ -1,11 +1,42 @@
-version: "3"
+version: "3.8"
 services:
   api:
-    container_name: server
+    container_name: letbe-grpc-server
+    image: fermetin/letbe-api-development
     build:
       context: .
       dockerfile: Dockerfile
+    env_file:
+      - .env
     ports:
       - "50055:50055"
-#    depends_on:
-#      - db
+    depends_on:
+      - db
+
+  db:
+    container_name: letbe-postgres-db
+    image: postgres:latest
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: let_db
+      PGDATA: /data/postgres
+    volumes:
+      - postgres-db:/data/postgres
+    ports:
+      - "5432:5432"
+  pgadmin:
+    container_name: letbe-pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: fatihtestmetin@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: letbeadmin
+    ports:
+      - "5050:80"
+volumes:
+  postgres-db:
+    driver: local
