@@ -8,7 +8,6 @@ use crate::{
 };
 
 pub mod config;
-pub mod entities;
 pub mod infra;
 pub mod services;
 
@@ -17,6 +16,8 @@ pub type LetDbConnection = DatabaseConnection;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     init_environment_vars()?;
+    let db = DatabaseInitializer::connect().await?;
+
 
     let db_conn = DatabaseInitializer::connect().await?;
     let user_gserver = UserGrpcServer::default();
@@ -31,7 +32,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Server::builder()
         .add_service(reflection_service)
-        .add_service(user_gserver.serve(db_conn.to_owned()))
+        .add_service(user_gserver.serve())
         .serve(addr.parse().unwrap())
         .await?;
 

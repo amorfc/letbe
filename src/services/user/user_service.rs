@@ -1,15 +1,11 @@
 use tonic::{Request, Response, Status};
 
-use crate::{
-    services::{
-        common::request::request_validator::RequestValidator,
-        proto::user::{
-            user_server::User, RegisterUserRequest, RegisterUserResponse,
-            RegisteredUserResponseData,
-        },
-        user::user_request::RequestUser,
+use crate::services::{
+    common::request::request_validator::RequestValidator,
+    proto::user::{
+        user_server::User, RegisterUserRequest, RegisterUserResponse, RegisteredUserResponseData,
     },
-    LetDbConnection,
+    user::user_request::RequestUser,
 };
 
 pub struct UserService {}
@@ -41,7 +37,7 @@ impl User for UserService {
 }
 
 impl UserService {
-    pub fn new(db_conn: LetDbConnection) -> Self {
+    pub fn new() -> Self {
         Self {}
     }
 }

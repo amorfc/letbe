@@ -1,12 +1,9 @@
-use crate::{
-    services::{
-        common::{
-            base::{GrpcServerConfig, GrpcServerConfigNewParam},
-            grpc_server::LetGrpcServer,
-        },
-        proto::user::{user_server::UserServer, USER_FILE_DESCRIPTOR_SET},
+use crate::services::{
+    common::{
+        base::{GrpcServerConfig, GrpcServerConfigNewParam},
+        grpc_server::LetGrpcServer,
     },
-    LetDbConnection,
+    proto::user::{user_server::UserServer, USER_FILE_DESCRIPTOR_SET},
 };
 
 use super::user_service::UserService;
@@ -35,7 +32,7 @@ impl Default for UserGrpcServer {
 }
 
 impl LetGrpcServer<TUserGrpcServer> for UserGrpcServer {
-    fn serve(&self, db_conn: LetDbConnection) -> TUserGrpcServer {
-        UserServer::new(UserService::new(db_conn))
+    fn serve(&self) -> TUserGrpcServer {
+        UserServer::new(UserService::new())
     }
 }
