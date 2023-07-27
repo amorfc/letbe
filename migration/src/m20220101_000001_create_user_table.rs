@@ -1,11 +1,10 @@
 // m20220101_000003_create_user_table.rs
 
-use sea_orm_migration::{
-    prelude::*,
-    sea_orm::{DbBackend, Schema},
-};
+use sea_orm_migration::prelude::*;
 
 use entity::user::{self};
+
+use crate::utils::migrator_utils;
 
 pub struct Migration;
 
@@ -19,9 +18,8 @@ impl MigrationName for Migration {
 impl MigrationTrait for Migration {
     // Define how to apply this migration: Create the User table.
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        let db_postgres = DbBackend::Postgres;
-        let connection = manager.get_connection();
-        let schema = Schema::new(db_postgres);
+        let (db_postgres, connection, schema) = migrator_utils(manager);
+
         let table_create_stm = db_postgres.build(&schema.create_table_from_entity(user::Entity));
         connection.execute(table_create_stm).await?;
 
