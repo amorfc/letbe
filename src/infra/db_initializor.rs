@@ -45,10 +45,10 @@ impl DatabaseInitializerImpl for DatabaseInitializer {
         let mut opt = ConnectOptions::new(db_url);
         opt.max_connections(100)
             .min_connections(5)
-            .connect_timeout(Duration::from_secs(8))
-            .acquire_timeout(Duration::from_secs(8))
-            .idle_timeout(Duration::from_secs(30))
-            .max_lifetime(Duration::from_secs(30))
+            // .connect_timeout(Duration::from_secs(8))
+            // .acquire_timeout(Duration::from_secs(8))
+            // .idle_timeout(Duration::from_secs(30))
+            // .max_lifetime(Duration::from_secs(30))
             .sqlx_logging(true)
             .to_owned()
     }
