@@ -1,3 +1,5 @@
+use sea_orm::DatabaseConnection;
+
 use crate::services::{
     common::{
         base::{GrpcServerConfig, GrpcServerConfigNewParam},
@@ -32,7 +34,7 @@ impl Default for UserGrpcServer {
 }
 
 impl LetGrpcServer<TUserGrpcServer> for UserGrpcServer {
-    fn serve(&self) -> TUserGrpcServer {
-        UserServer::new(UserService::new())
+    fn serve(&self, db_connection: DatabaseConnection) -> TUserGrpcServer {
+        UserServer::new(UserService::new(db_connection))
     }
 }
