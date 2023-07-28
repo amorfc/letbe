@@ -34,7 +34,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Server::builder()
         .add_service(reflection_service)
-        .add_service(user_gserver.serve())
+        .add_service(user_gserver.serve(db))
         .serve(addr.parse().unwrap())
         .await?;
 
