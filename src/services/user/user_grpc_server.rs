@@ -1,4 +1,5 @@
 use crate::{
+    application::managers::user::user_manager::UserManager,
     infra::db_initializor::LetDbConnection,
     services::{
         common::{
@@ -11,26 +12,22 @@ use crate::{
 
 use super::user_service::UserService;
 
-type TUserGrpcServer = UserServer<UserService>;
-pub struct UserGrpcServer {
-    pub config: GrpcServerConfig,
-}
+type TUserGrpcServer = UserServer<UserService<UserManager>>;
+pub struct UserGrpcServer {}
 
 impl UserGrpcServer {
-    pub fn get_descriptor(&self) -> &'static [u8] {
-        self.config.file_descriptor_set
+    pub fn new() -> Self {
+        Self {}
     }
-}
-
-impl Default for UserGrpcServer {
-    fn default() -> Self {
+    pub fn config() -> GrpcServerConfig {
         let config_param = GrpcServerConfigNewParam {
             file_descriptor_set: USER_FILE_DESCRIPTOR_SET,
         };
 
-        let config = GrpcServerConfig::new(config_param);
-
-        Self { config }
+        GrpcServerConfig::new(config_param)
+    }
+    pub fn descriptor() -> &'static [u8] {
+        Self::config().file_descriptor_set
     }
 }
 

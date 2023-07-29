@@ -20,10 +20,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Migrator::up(&db, None).await?;
 
-    let user_gserver = UserGrpcServer::default();
-
     let reflection_service = tonic_reflection::server::Builder::configure()
-        .register_encoded_file_descriptor_set(user_gserver.get_descriptor())
+        .register_encoded_file_descriptor_set(UserGrpcServer::descriptor())
         .build()
         .unwrap();
 
@@ -32,7 +30,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Server::builder()
         .add_service(reflection_service)
-        .add_service(user_gserver.serve(db))
+        .add_service(UserGrpcServer::new().serve(db))
         .serve(addr.parse().unwrap())
         .await?;
 
