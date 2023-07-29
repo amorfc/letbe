@@ -2,7 +2,7 @@ use entity::user as UserEntity;
 
 use crate::{
     application::repositories::common::repository::{
-        RepoDbConnectionProvider, RepoDbTransactionProvider, RepositoryImpl,
+        BaseRepositoryImpl, RepoDbConnectionProvider, RepoDbTransactionProvider,
     },
     infra::db_initializor::LetDbConnection,
 };
@@ -13,12 +13,22 @@ pub struct UserRepository {
     db_connection: LetDbConnection,
 }
 
-impl UserRepository {
-    pub fn new(db_connection: LetDbConnection) -> Self {
+#[tonic::async_trait]
+pub trait UserRepositoryTrait
+where
+    Self: BaseRepositoryImpl<UserEntity::ActiveModel, UserEntity::Entity>,
+{
+    fn new(db_connection: LetDbConnection) -> Self;
+    async fn create_user(&self, user: UserEntity::ActiveModel) -> Result<(), String>;
+}
+
+#[tonic::async_trait]
+impl UserRepositoryTrait for UserRepository {
+    fn new(db_connection: LetDbConnection) -> Self {
         Self { db_connection }
     }
 
-    pub async fn create_user(&self, model: UserEntity::ActiveModel) -> Result<(), String> {
+    async fn create_user(&self, model: UserEntity::ActiveModel) -> Result<(), String> {
         self.create(model).await?;
 
         Ok(())
@@ -27,7 +37,7 @@ impl UserRepository {
 
 // Then, when you implement the trait, you can specify the types:
 #[tonic::async_trait]
-impl RepositoryImpl<UserEntity::ActiveModel, UserEntity::Entity> for UserRepository {}
+impl BaseRepositoryImpl<UserEntity::ActiveModel, UserEntity::Entity> for UserRepository {}
 
 impl RepoDbConnectionProvider for UserRepository {
     fn db_connection(&self) -> &LetDbConnection {
