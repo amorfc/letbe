@@ -1,9 +1,7 @@
-use entity::user;
-use sea_orm::ActiveValue;
 use tonic::{Request, Response, Status};
 
 use crate::{
-    application::repositories::user::user_repository::UserRepository,
+    application::managers::user::user_manager::UserManagerTrait,
     infra::db_initializor::LetDbConnection,
     services::{
         common::request::request_validator::RequestValidator,
@@ -12,12 +10,14 @@ use crate::{
     },
 };
 
-pub struct UserService {
-    user_repository: UserRepository,
+pub struct UserService<T: UserManagerTrait> {
+    user_manager: T,
 }
 
 #[tonic::async_trait]
-impl crate::services::proto::user::user_server::User for UserService {
+impl<T: UserManagerTrait + Send + Sync + 'static> crate::services::proto::user::user_server::User
+    for UserService<T>
+{
     async fn register_user(
         &self,
         request: Request<RegisterUserRequest>,
@@ -29,16 +29,8 @@ impl crate::services::proto::user::user_server::User for UserService {
 
         RequestValidator::new(&request_user).validate_for_response()?;
 
-        let create_user_model = user::ActiveModel {
-            email: ActiveValue::set(request_user.email),
-            password: ActiveValue::set(request_user.password),
-            user_type: ActiveValue::Set(user::UserType::Corporation),
-            name: ActiveValue::set(request_user.name),
-            surname: ActiveValue::set(request_user.surname),
-            ..Default::default()
-        };
-
-        let user_create_result = self.user_repository.create_user(create_user_model).await;
+        //TODO: Implement the user registration logic
+        let _ = self.user_manager.user_registration().await;
 
         Ok(Response::new(RegisterUserResponse {
             data: Some(RegisteredUserResponseData {
@@ -48,9 +40,9 @@ impl crate::services::proto::user::user_server::User for UserService {
     }
 }
 
-impl UserService {
+impl<T: UserManagerTrait> UserService<T> {
     pub fn new(db_connection: LetDbConnection) -> Self {
-        let user_repository = UserRepository::new(db_connection.clone());
-        Self { user_repository }
+        let user_manager = T::new();
+        Self { user_manager }
     }
 }
