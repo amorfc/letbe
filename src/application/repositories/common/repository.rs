@@ -17,11 +17,11 @@ pub trait RepoDbTransactionProvider: RepoDbConnectionProvider {
 }
 
 #[tonic::async_trait]
-pub trait RepositoryImpl<A, E>: RepoDbConnectionProvider + RepoDbTransactionProvider
+pub trait BaseRepositoryImpl<A, E>: RepoDbConnectionProvider + RepoDbTransactionProvider
 where
-    E: EntityTrait,
     A: ActiveModelTrait + ActiveModelBehavior + Send + 'static,
     <A::Entity as EntityTrait>::Model: IntoActiveModel<A>,
+    E: EntityTrait,
 {
     async fn save_as_commit(&self, db_tx: &LetDbConnection, model: A) -> Result<A, String> {
         match model.save(db_tx).await {
