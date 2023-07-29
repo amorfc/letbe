@@ -1,6 +1,5 @@
 use migration::{Migrator, MigratorTrait};
 
-use sea_orm::DatabaseConnection;
 use tonic::transport::Server;
 
 use crate::{
@@ -13,8 +12,6 @@ pub mod application;
 pub mod config;
 pub mod infra;
 pub mod services;
-
-pub type LetDbConnection = DatabaseConnection;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -1,8 +1,9 @@
-use std::time::Duration;
+use sea_orm::{ConnectOptions, Database, DatabaseConnection, DatabaseTransaction, DbErr};
 
-use sea_orm::{ConnectOptions, Database, DbErr};
+use crate::config::ENV_CONFIG;
 
-use crate::{config::ENV_CONFIG, LetDbConnection};
+pub type LetDbConnection = DatabaseConnection;
+pub type LetDbTransaction = DatabaseTransaction;
 
 #[tonic::async_trait]
 pub trait DatabaseInitializerImpl {
