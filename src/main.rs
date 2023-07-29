@@ -9,6 +9,7 @@ use crate::{
     services::{common::grpc_server::LetGrpcServer, user::user_grpc_server::UserGrpcServer},
 };
 
+pub mod application;
 pub mod config;
 pub mod infra;
 pub mod services;
