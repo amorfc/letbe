@@ -11,7 +11,12 @@ message RegisterUserRequest {
     string password = 2;
     string surname = 3;
     string name = 4;
-    string user_type = 5;
+    UserType user_type = 5;
+}
+
+enum UserType{
+    INDIVIDUAL = 0;
+    CORPORATION = 1;
 }
 
 message RegisterUserResponse {
@@ -19,5 +24,7 @@ message RegisterUserResponse {
 }
 
 message RegisteredUserResponseData {
-    string token = 1;
+    string email = 1;
+    string name = 2;
+    string surname = 3;
 }
