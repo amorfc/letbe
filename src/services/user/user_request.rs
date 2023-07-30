@@ -1,9 +1,19 @@
+use std::fmt::Display;
+
+use entity::user as UserEntity;
+use lazy_static::lazy_static;
+use regex::Regex;
+use sea_orm::ActiveValue;
 use validator::Validate;
 
 use crate::services::proto::user::RegisterUserRequest;
 
+lazy_static! {
+    static ref REGEX_USER_TYPE: Regex = Regex::new(r"^\s*(Individual|Corporation)\s*$").unwrap();
+}
+
 #[derive(Debug, Validate, Clone)]
-pub struct RequestUser {
+pub struct NewUser {
     #[validate(email(message = "Please enter a valid email"))]
     pub email: String,
 
@@ -13,6 +23,8 @@ pub struct RequestUser {
         message = "Pelease enter a password between 10 and 30 char"
     ))]
     pub password: String,
+
+    #[validate(regex(path = "REGEX_USER_TYPE", message = "Please enter a valid user type"))]
     pub user_type: String,
     #[validate(length(
         min = 10,
