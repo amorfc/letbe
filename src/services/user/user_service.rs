@@ -41,7 +41,7 @@ impl<T: UserManagerTrait + Send + Sync + 'static> crate::services::proto::user::
 }
 
 impl<T: UserManagerTrait> UserService<T> {
-    pub fn new(db_connection: LetDbConnection) -> Self {
+    pub fn new(_db_connection: LetDbConnection) -> Self {
         let user_manager = T::new();
         Self { user_manager }
     }

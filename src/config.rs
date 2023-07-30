@@ -51,7 +51,7 @@ impl Display for Config {
 pub fn init_environment_vars() -> Result<(), String> {
     dotenvy::dotenv().ok();
 
-    println!("Env Configs \n{}", ENV_CONFIG.to_string());
+    println!("Env Configs \n{}", *ENV_CONFIG);
 
     Ok(())
 }

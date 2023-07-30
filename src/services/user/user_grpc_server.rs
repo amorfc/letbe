@@ -31,6 +31,12 @@ impl UserGrpcServer {
     }
 }
 
+impl Default for UserGrpcServer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LetGrpcServer<TUserGrpcServer> for UserGrpcServer {
     fn serve(&self, db_connection: LetDbConnection) -> TUserGrpcServer {
         UserServer::new(UserService::new(db_connection))
