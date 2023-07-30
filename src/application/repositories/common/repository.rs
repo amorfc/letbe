@@ -1,3 +1,4 @@
+
 use sea_orm::{
     ActiveModelBehavior, ActiveModelTrait, DbErr, EntityTrait, IntoActiveModel, TransactionTrait,
 };
@@ -21,39 +22,23 @@ pub trait BaseRepositoryImpl<A, E>: RepoDbConnectionProvider + RepoDbTransaction
 where
     A: ActiveModelTrait + ActiveModelBehavior + Send + 'static,
     <A::Entity as EntityTrait>::Model: IntoActiveModel<A>,
-    E: EntityTrait,
+    E: EntityTrait + 'static,
 {
-    async fn save_as_commit(&self, db_tx: &LetDbConnection, model: A) -> Result<A, String> {
+    async fn save(&self, model: A) -> Result<A, String> {
+        let db_tx = self.db_connection();
+
         match model.save(db_tx).await {
             Ok(model) => Ok(model),
             Err(_) => return Err("Failed to save model".to_string()),
         }
     }
 
-    async fn insert_as_commit(
-        &self,
-        db_tx: &LetDbTransaction,
-        model: A,
-    ) -> Result<<A::Entity as EntityTrait>::Model, String> {
+    async fn insert(&self, model: A) -> Result<A, String> {
+        let db_tx = self.db_connection();
+
         match model.insert(db_tx).await {
-            Ok(model) => Ok(model),
+            Ok(model) => Ok(model.into_active_model()),
             Err(_) => return Err("Failed to insert model".to_string()),
         }
-    }
-
-    async fn create(&self, model: A) -> Result<(), String> {
-        let txn = self
-            .db_tx()
-            .await
-            .map_err(|_| "Failed to create transaction")?;
-
-        let _ = &self.insert_as_commit(&txn, model).await?;
-
-        match txn.commit().await {
-            Ok(_) => (),
-            Err(_) => return Err("Failed to commit model".to_string()),
-        };
-
-        Ok(())
     }
 }
