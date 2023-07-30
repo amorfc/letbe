@@ -35,7 +35,7 @@ pub struct NewUser {
     #[validate(length(
         min = 10,
         max = 30,
-        message = "Pelease enter a name between 10 and 30 char"
+        message = "Pelease enter a surname between 10 and 30 char"
     ))]
     pub surname: String,
 }
