@@ -1,4 +1,5 @@
 use entity::user as UserEntity;
+use sea_orm::TryIntoModel;
 
 use crate::{
     application::repositories::common::repository::{
@@ -19,7 +20,8 @@ where
     Self: BaseRepositoryImpl<UserEntity::ActiveModel, UserEntity::Entity>,
 {
     fn new(db_connection: LetDbConnection) -> Self;
-    async fn create_user(&self, user: UserEntity::ActiveModel) -> Result<(), String>;
+    async fn create_user(&self, user: UserEntity::ActiveModel)
+        -> Result<UserEntity::Model, String>;
 }
 
 #[tonic::async_trait]
@@ -28,10 +30,16 @@ impl UserRepositoryTrait for UserRepository {
         Self { db_connection }
     }
 
-    async fn create_user(&self, model: UserEntity::ActiveModel) -> Result<(), String> {
-        self.create(model).await?;
+    async fn create_user(
+        &self,
+        active_model: UserEntity::ActiveModel,
+    ) -> Result<UserEntity::Model, String> {
+        let created_user = self.insert(active_model).await?;
+        let created_user = created_user
+            .try_into_model()
+            .map_err(|_| "Failed to convert")?;
 
-        Ok(())
+        Ok(created_user)
     }
 }
 
