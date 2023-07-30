@@ -23,6 +23,16 @@ pub enum UserType {
     Corporation,
 }
 
+impl From<String> for UserType {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "Individual" => UserType::Individual,
+            "Corporation" => UserType::Corporation,
+            _ => panic!("Invalid user type"),
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {}
 
