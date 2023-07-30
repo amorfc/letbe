@@ -6,7 +6,7 @@ use crate::{
     services::{
         common::request::request_validator::RequestValidator,
         proto::user::{RegisterUserRequest, RegisterUserResponse, RegisteredUserResponseData},
-        user::user_request::RequestUser,
+        user::user_request::NewUser,
     },
 };
 
@@ -24,25 +24,27 @@ impl<T: UserManagerTrait + Send + Sync + 'static> crate::services::proto::user::
     ) -> Result<Response<RegisterUserResponse>, Status> {
         dbg!(&request);
 
-        let user = request.into_inner();
-        let request_user = RequestUser::from(user);
+        let user: RegisterUserRequest = request.into_inner();
+        let input_create_user = NewUser::from(user);
 
-        RequestValidator::new(&request_user).validate_for_response()?;
+        RequestValidator::new(&input_create_user).validate_for_response()?;
 
-        //TODO: Implement the user registration logic
-        let _ = self.user_manager.user_registration().await;
+        let registered_user: RegisteredUserResponseData = self
+            .user_manager
+            .user_registration(input_create_user)
+            .await
+            .map_err(Status::internal)?
+            .into();
 
         Ok(Response::new(RegisterUserResponse {
-            data: Some(RegisteredUserResponseData {
-                token: "token".to_string(),
-            }),
+            data: Some(registered_user),
         }))
     }
 }
 
 impl<T: UserManagerTrait> UserService<T> {
-    pub fn new(_db_connection: LetDbConnection) -> Self {
-        let user_manager = T::new();
+    pub fn new(db_connection: LetDbConnection) -> Self {
+        let user_manager = T::new(db_connection);
         Self { user_manager }
     }
 }
