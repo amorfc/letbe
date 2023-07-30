@@ -1,4 +1,4 @@
 {
   "rust-analyzer.linkedProjects": ["./Cargo.toml"],
-  "rust-analyzer.check.command": "clippy --all"
+  "rust-analyzer.check.command": "clippy"
 }
