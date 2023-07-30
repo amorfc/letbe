@@ -40,26 +40,73 @@ pub struct NewUser {
     pub surname: String,
 }
 
-impl From<RegisterUserRequest> for RequestUser {
+pub enum RequestUserType {
+    Individual,
+    Corporation,
+}
+
+impl From<i32> for RequestUserType {
+    fn from(value: i32) -> Self {
+        match value {
+            0 => RequestUserType::Individual,
+            1 => RequestUserType::Corporation,
+            _ => panic!("Invalid user type"),
+        }
+    }
+}
+
+impl From<String> for RequestUserType {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "Individual" => RequestUserType::Individual,
+            "Corporation" => RequestUserType::Corporation,
+            _ => panic!("Invalid user type"),
+        }
+    }
+}
+
+impl Display for RequestUserType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let value = match self {
+            RequestUserType::Individual => "Individual",
+            RequestUserType::Corporation => "Corporation",
+        };
+        write!(f, "{}", value)
+    }
+}
+
+impl RequestUserType {
+    pub fn to_int(&self) -> i32 {
+        match self {
+            RequestUserType::Individual => 0,
+            RequestUserType::Corporation => 1,
+        }
+    }
+}
+
+impl From<RegisterUserRequest> for NewUser {
     fn from(value: RegisterUserRequest) -> Self {
         Self {
             password: value.password,
             email: value.email,
-            user_type: value.user_type,
+            user_type: RequestUserType::from(value.user_type).to_string(),
             name: value.name,
             surname: value.surname,
         }
     }
 }
 
-impl From<RequestUser> for RegisterUserRequest {
-    fn from(value: RequestUser) -> Self {
-        Self {
-            user_type: value.user_type,
-            password: value.password,
-            name: value.name,
-            surname: value.surname,
-            email: value.email,
-        }
+pub struct NewUserActiveModelWrapper(pub UserEntity::ActiveModel);
+
+impl From<NewUser> for NewUserActiveModelWrapper {
+    fn from(value: NewUser) -> Self {
+        Self(UserEntity::ActiveModel {
+            id: ActiveValue::not_set(),
+            name: ActiveValue::set(value.name),
+            surname: ActiveValue::set(value.surname),
+            email: ActiveValue::set(value.email),
+            password: ActiveValue::set(value.password),
+            user_type: ActiveValue::set(UserEntity::UserType::from(value.user_type)),
+        })
     }
 }
