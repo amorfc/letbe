@@ -1,6 +1,6 @@
 use entity::user as UserEntity;
 
-use crate::services::proto::user::RegisteredUserResponseData;
+use crate::services::proto::user::{RegisteredUserResponseData, UserType as ResponseUserType};
 
 pub struct DomainUserModel {
     pub id: i32,
@@ -40,12 +40,23 @@ impl From<UserEntity::UserType> for DomainUserType {
     }
 }
 
+impl From<DomainUserType> for ResponseUserType {
+    fn from(value: DomainUserType) -> Self {
+        match value {
+            DomainUserType::Individual => ResponseUserType::Individual,
+            DomainUserType::Corporation => ResponseUserType::Corporation,
+        }
+    }
+}
+
 impl From<DomainUserModel> for RegisteredUserResponseData {
     fn from(val: DomainUserModel) -> Self {
         RegisteredUserResponseData {
+            id: val.id,
             name: val.name,
             surname: val.surname,
             email: val.email,
+            user_type: ResponseUserType::from(val.user_type).into(),
         }
     }
 }

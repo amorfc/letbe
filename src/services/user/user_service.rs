@@ -22,8 +22,6 @@ impl<T: UserManagerTrait + Send + Sync + 'static> crate::services::proto::user::
         &self,
         request: Request<RegisterUserRequest>,
     ) -> Result<Response<RegisterUserResponse>, Status> {
-        dbg!(&request);
-
         let user: RegisterUserRequest = request.into_inner();
         let input_create_user = NewUser::from(user);
 
@@ -36,9 +34,9 @@ impl<T: UserManagerTrait + Send + Sync + 'static> crate::services::proto::user::
             .map_err(Status::internal)?
             .into();
 
-        Ok(Response::new(RegisterUserResponse {
-            data: Some(registered_user),
-        }))
+        let data = Some(registered_user);
+        let response = RegisterUserResponse { data };
+        Ok(Response::new(response))
     }
 }
 
