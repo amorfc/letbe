@@ -24,18 +24,18 @@ where
     E: EntityTrait + 'static,
 {
     async fn save(&self, model: A) -> Result<A, String> {
-        let db_tx = self.db_connection();
+        let db_conn = self.db_connection();
 
-        match model.save(db_tx).await {
+        match model.save(db_conn).await {
             Ok(model) => Ok(model),
             Err(_) => return Err("Failed to save model".to_string()),
         }
     }
 
     async fn insert(&self, model: A) -> Result<A, String> {
-        let db_tx = self.db_connection();
+        let db_conn = self.db_connection();
 
-        match model.insert(db_tx).await {
+        match model.insert(db_conn).await {
             Ok(model) => Ok(model.into_active_model()),
             Err(_) => return Err("Failed to insert model".to_string()),
         }
