@@ -34,8 +34,6 @@ impl<R: UserRepositoryTrait + Send + Sync> UserManagerTrait for UserManager<R> {
 
         let registered_user = self.user_repo.create_user(active_model).await?;
 
-        let domain_user_model = DomainUserModel::from(registered_user);
-
-        Ok(domain_user_model)
+        Ok(registered_user.into())
     }
 }
