@@ -101,12 +101,12 @@ pub struct NewUserActiveModelWrapper(pub UserEntity::ActiveModel);
 impl From<NewUser> for NewUserActiveModelWrapper {
     fn from(value: NewUser) -> Self {
         Self(UserEntity::ActiveModel {
-            id: ActiveValue::not_set(),
             name: ActiveValue::set(value.name),
             surname: ActiveValue::set(value.surname),
             email: ActiveValue::set(value.email),
             password: ActiveValue::set(value.password),
             user_type: ActiveValue::set(UserEntity::UserType::from(value.user_type)),
+            ..Default::default()
         })
     }
 }
