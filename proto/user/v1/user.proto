@@ -24,7 +24,9 @@ message RegisterUserResponse {
 }
 
 message RegisteredUserResponseData {
-    string email = 1;
-    string name = 2;
-    string surname = 3;
+    int32 id = 1;
+    string email = 2;
+    string name = 3;
+    string surname = 4;
+    UserType user_type = 5;
 }
