@@ -1,1 +1,1 @@
-pub trait BaseManagerImpl {}
+pub trait ManagerTrait<D> {}

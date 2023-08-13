@@ -1,39 +1,61 @@
+use entity::user;
+use sea_orm::TryIntoModel;
+
 use crate::{
     application::{
         domain::models::user::domain_user_model::DomainUserModel,
-        repositories::user::user_repository::UserRepositoryTrait,
+        managers::common::manager::ManagerTrait,
+        repositories::user::user_repository::{UserRepositoryImpl, UserRepositoryTrait},
     },
     infra::db_initializor::LetDbConnection,
     services::user::user_request::NewUserActiveModelWrapper,
 };
 
 #[tonic::async_trait]
-pub trait UserManagerTrait {
-    fn new(db_connection: LetDbConnection) -> Self;
-    async fn user_registration<T: Into<NewUserActiveModelWrapper> + Send>(
+pub trait UserManagerTrait: ManagerTrait<DomainUserModel> {
+    async fn user_registration(
         &self,
-        new_user: T,
+        input_create_user: NewUserActiveModelWrapper,
     ) -> Result<DomainUserModel, String>;
 }
 
-pub struct UserManager<T: UserRepositoryTrait> {
-    user_repo: T,
+// Implementation of UserManagerTrait
+pub struct UserManagerImpl {
+    repo: UserRepositoryImpl,
+}
+
+impl UserManagerImpl {
+    pub fn new(db_connection: LetDbConnection) -> Self {
+        Self {
+            repo: UserRepositoryImpl::new(db_connection),
+        }
+    }
 }
 
 #[tonic::async_trait]
-impl<R: UserRepositoryTrait + Send + Sync> UserManagerTrait for UserManager<R> {
-    fn new(db_conneciton: LetDbConnection) -> Self {
-        let user_repo = R::new(db_conneciton);
-        Self { user_repo }
-    }
-    async fn user_registration<T: Into<NewUserActiveModelWrapper> + Send>(
+impl UserManagerTrait for UserManagerImpl {
+    async fn user_registration(
         &self,
-        new_user: T,
+        new_user: NewUserActiveModelWrapper,
     ) -> Result<DomainUserModel, String> {
-        let NewUserActiveModelWrapper(active_model) = new_user.into();
+        let created_user = self.repo.create_user(new_user.0).await?;
 
-        let registered_user = self.user_repo.create_user(active_model).await?;
-
-        Ok(registered_user.into())
+        Ok(created_user.into())
     }
 }
+
+impl From<user::ActiveModel> for DomainUserModel {
+    fn from(value: user::ActiveModel) -> Self {
+        let value = value.try_into_model().unwrap();
+        Self {
+            id: value.id,
+            name: value.name,
+            email: value.email,
+            password: value.password,
+            surname: value.surname,
+            user_type: value.user_type.into(),
+        }
+    }
+}
+
+impl ManagerTrait<DomainUserModel> for UserManagerImpl {}
