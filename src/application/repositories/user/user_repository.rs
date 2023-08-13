@@ -1,56 +1,42 @@
 use entity::user as UserEntity;
-use sea_orm::TryIntoModel;
 
 use crate::{
-    application::repositories::common::repository::{
-        BaseRepositoryImpl, RepoDbConnectionProvider, RepoDbTransactionProvider,
-    },
+    application::repositories::common::repository::{DbConnectionProvider, RepositoryTrait},
     infra::db_initializor::LetDbConnection,
 };
 
-// Define a new trait that provides the db_connection method
+// User Manager Trait that requires UserRepositoryTrait
+#[tonic::async_trait]
+pub trait UserRepositoryTrait:
+    RepositoryTrait<UserEntity::ActiveModel, UserEntity::Entity>
+{
+    async fn create_user(
+        &self,
+        user: UserEntity::ActiveModel,
+    ) -> Result<UserEntity::ActiveModel, String> {
+        let a = self.save(user).await?;
+        Ok(a)
+    }
+    // Define methods specific to UserRepository here
+}
 
-pub struct UserRepository {
+// Implementation of UserRepositoryTrait
+pub struct UserRepositoryImpl {
     db_connection: LetDbConnection,
 }
 
 #[tonic::async_trait]
-pub trait UserRepositoryTrait
-where
-    Self: BaseRepositoryImpl<UserEntity::ActiveModel, UserEntity::Entity>,
-{
-    fn new(db_connection: LetDbConnection) -> Self;
-    async fn create_user(&self, user: UserEntity::ActiveModel)
-        -> Result<UserEntity::Model, String>;
-}
+impl UserRepositoryTrait for UserRepositoryImpl {}
 
-#[tonic::async_trait]
-impl UserRepositoryTrait for UserRepository {
-    fn new(db_connection: LetDbConnection) -> Self {
+impl UserRepositoryImpl {
+    pub fn new(db_connection: LetDbConnection) -> Self {
         Self { db_connection }
     }
-
-    async fn create_user(
-        &self,
-        active_model: UserEntity::ActiveModel,
-    ) -> Result<UserEntity::Model, String> {
-        let created_user = self.insert(active_model).await?;
-        let created_user = created_user
-            .try_into_model()
-            .map_err(|_| "Failed to convert")?;
-
-        Ok(created_user)
-    }
 }
 
-// Then, when you implement the trait, you can specify the types:
-#[tonic::async_trait]
-impl BaseRepositoryImpl<UserEntity::ActiveModel, UserEntity::Entity> for UserRepository {}
-
-impl RepoDbConnectionProvider for UserRepository {
+impl DbConnectionProvider for UserRepositoryImpl {
     fn db_connection(&self) -> &LetDbConnection {
         &self.db_connection
     }
 }
-
-impl RepoDbTransactionProvider for UserRepository {}
+impl RepositoryTrait<UserEntity::ActiveModel, UserEntity::Entity> for UserRepositoryImpl {}
