@@ -4,20 +4,20 @@ use sea_orm::{
 
 use crate::infra::db_initializor::{LetDbConnection, LetDbTransaction};
 
-pub trait RepoDbConnectionProvider {
+pub trait DbConnectionProvider {
     fn db_connection(&self) -> &LetDbConnection;
 }
 
 // Define a new trait that provides the db_transaction method
 #[tonic::async_trait]
-pub trait RepoDbTransactionProvider: RepoDbConnectionProvider {
+pub trait DbTransactionProvider: DbConnectionProvider {
     async fn db_tx(&self) -> Result<LetDbTransaction, DbErr> {
         self.db_connection().begin().await
     }
 }
 
 #[tonic::async_trait]
-pub trait BaseRepositoryImpl<A, E>: RepoDbConnectionProvider + RepoDbTransactionProvider
+pub trait RepositoryTrait<A, E>: DbConnectionProvider
 where
     A: ActiveModelTrait + ActiveModelBehavior + Send + 'static,
     <A::Entity as EntityTrait>::Model: IntoActiveModel<A>,
