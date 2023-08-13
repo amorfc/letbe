@@ -1,8 +1,5 @@
 use crate::{
-    application::{
-        managers::user::user_manager::UserManager,
-        repositories::user::user_repository::UserRepository,
-    },
+    application::managers::user::user_manager::UserManagerImpl,
     infra::db_initializor::LetDbConnection,
     services::{
         common::{
@@ -15,7 +12,7 @@ use crate::{
 
 use super::user_service::UserService;
 
-type TUserGrpcServer = UserServer<UserService<UserManager<UserRepository>>>;
+type TUserGrpcServer = UserServer<UserService<UserManagerImpl>>;
 pub struct UserGrpcServer {}
 
 impl UserGrpcServer {

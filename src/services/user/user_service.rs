@@ -1,23 +1,32 @@
+
 use tonic::{Request, Response, Status};
 
 use crate::{
-    application::managers::user::user_manager::UserManagerTrait,
+    application::managers::user::user_manager::{UserManagerImpl, UserManagerTrait},
     infra::db_initializor::LetDbConnection,
     services::{
         common::request::request_validator::RequestValidator,
-        proto::user::{RegisterUserRequest, RegisterUserResponse, RegisteredUserResponseData},
+        proto::user::{
+            user_server::User as UserServer, RegisterUserRequest, RegisterUserResponse,
+        },
         user::user_request::NewUser,
     },
 };
 
 pub struct UserService<T: UserManagerTrait> {
-    user_manager: T,
+    manager: T,
+}
+
+impl UserService<UserManagerImpl> {
+    pub fn new(db_connection: LetDbConnection) -> Self {
+        Self {
+            manager: UserManagerImpl::new(db_connection),
+        }
+    }
 }
 
 #[tonic::async_trait]
-impl<T: UserManagerTrait + Send + Sync + 'static> crate::services::proto::user::user_server::User
-    for UserService<T>
-{
+impl UserServer for UserService<UserManagerImpl> {
     async fn register_user(
         &self,
         request: Request<RegisterUserRequest>,
@@ -27,22 +36,16 @@ impl<T: UserManagerTrait + Send + Sync + 'static> crate::services::proto::user::
 
         RequestValidator::new(&input_create_user).validate_for_response()?;
 
-        let registered_user: RegisteredUserResponseData = self
-            .user_manager
-            .user_registration(input_create_user)
+        let registered_user = self
+            .manager
+            .user_registration(input_create_user.into())
             .await
-            .map_err(Status::internal)?
-            .into();
+            .map_err(Status::internal)?;
 
-        let data = Some(registered_user);
+        let response_data = registered_user.into();
+
+        let data = Some(response_data);
         let response = RegisterUserResponse { data };
         Ok(Response::new(response))
-    }
-}
-
-impl<T: UserManagerTrait> UserService<T> {
-    pub fn new(db_connection: LetDbConnection) -> Self {
-        let user_manager = T::new(db_connection);
-        Self { user_manager }
     }
 }
