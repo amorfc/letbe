@@ -31,14 +31,13 @@ impl UserServer for UserService<UserManagerImpl> {
         &self,
         request: Request<RegisterUserRequest>,
     ) -> Result<Response<RegisterUserResponse>, Status> {
-        let user: RegisterUserRequest = request.into_inner();
-        let input_create_user = NewUser::from(user);
+        let new_user = NewUser::from(request.into_inner());
 
-        RequestValidator::new(&input_create_user).validate_for_response()?;
+        RequestValidator::new(&new_user).validate_for_response()?;
 
         let registered_user = self
             .manager
-            .user_registration(input_create_user)
+            .user_registration(new_user)
             .await
             .map_err(Status::internal)?;
 
@@ -53,8 +52,6 @@ impl UserServer for UserService<UserManagerImpl> {
         &self,
         _request: Request<LoginUserRequest>,
     ) -> Result<Response<LoginUserResponse>, Status> {
-        dbg!("login_user");
-
         Err(Status::unimplemented("Not implemented"))
     }
 }
