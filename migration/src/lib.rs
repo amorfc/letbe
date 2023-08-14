@@ -12,8 +12,8 @@ pub mod utils;
 impl MigratorTrait for Migrator {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
         vec![
-            Box::new(m20220101_000001_create_user_table::Migration),
             Box::new(m20220101_000002_create_enum::Migration),
+            Box::new(m20220101_000001_create_user_table::Migration),
             Box::new(m20230814_192414_create_authn_table::Migration),
         ]
     }
