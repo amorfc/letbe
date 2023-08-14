@@ -32,7 +32,7 @@ impl UserManagerImpl {
     }
 
     pub async fn check_email_availability(&self, email: &str) -> Result<(), String> {
-        let find_user = self.repo.find_user_by_email(email.into()).await?;
+        let find_user = self.repo.find_user_by_email(email).await?;
         if let Some(exists_user) = find_user {
             return Err(format!(
                 "User with email ${} already exists",
