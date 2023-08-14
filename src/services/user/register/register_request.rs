@@ -148,7 +148,7 @@ impl TryFrom<NewUser> for NewUserActiveModelWrapper {
             email: ActiveValue::set(value.email),
             password: ActiveValue::set(password),
             salt: ActiveValue::set(salt),
-            user_type: ActiveValue::set(UserEntity::UserType::from(value.user_type)),
+            user_type: ActiveValue::set(UserEntity::UserTypeEnum::from(value.user_type)),
             ..Default::default()
         }))
     }

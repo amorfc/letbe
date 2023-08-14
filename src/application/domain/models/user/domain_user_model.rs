@@ -31,11 +31,11 @@ pub enum DomainUserType {
     Corporation,
 }
 
-impl From<UserEntity::UserType> for DomainUserType {
-    fn from(value: UserEntity::UserType) -> Self {
+impl From<UserEntity::UserTypeEnum> for DomainUserType {
+    fn from(value: UserEntity::UserTypeEnum) -> Self {
         match value {
-            UserEntity::UserType::Individual => DomainUserType::Individual,
-            UserEntity::UserType::Corporation => DomainUserType::Corporation,
+            UserEntity::UserTypeEnum::Individual => DomainUserType::Individual,
+            UserEntity::UserTypeEnum::Corporation => DomainUserType::Corporation,
         }
     }
 }
