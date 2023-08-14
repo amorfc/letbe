@@ -1,4 +1,3 @@
-
 use tonic::{Request, Response, Status};
 
 use crate::{
@@ -6,9 +5,7 @@ use crate::{
     infra::db_initializor::LetDbConnection,
     services::{
         common::request::request_validator::RequestValidator,
-        proto::user::{
-            user_server::User as UserServer, RegisterUserRequest, RegisterUserResponse,
-        },
+        proto::user::{user_server::User as UserServer, RegisterUserRequest, RegisterUserResponse},
         user::user_request::NewUser,
     },
 };
@@ -38,7 +35,7 @@ impl UserServer for UserService<UserManagerImpl> {
 
         let registered_user = self
             .manager
-            .user_registration(input_create_user.into())
+            .user_registration(input_create_user)
             .await
             .map_err(Status::internal)?;
 

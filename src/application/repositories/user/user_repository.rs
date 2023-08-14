@@ -1,4 +1,5 @@
 use entity::user as UserEntity;
+use sea_orm::entity::prelude::*;
 
 use crate::{
     application::repositories::common::repository::{DbConnectionProvider, RepositoryTrait},

@@ -8,14 +8,14 @@ use crate::{
         repositories::user::user_repository::{UserRepositoryImpl, UserRepositoryTrait},
     },
     infra::db_initializor::LetDbConnection,
-    services::user::user_request::NewUserActiveModelWrapper,
+    services::user::user_request::{NewUser, NewUserActiveModelWrapper},
 };
 
 #[tonic::async_trait]
 pub trait UserManagerTrait: ManagerTrait<DomainUserModel> {
     async fn user_registration(
         &self,
-        input_create_user: NewUserActiveModelWrapper,
+        input_create_user: NewUser,
     ) -> Result<DomainUserModel, String>;
 }
 
@@ -30,15 +30,29 @@ impl UserManagerImpl {
             repo: UserRepositoryImpl::new(db_connection),
         }
     }
+
+    pub async fn check_email_availability(&self, email: &str) -> Result<(), String> {
+        let find_user = self.repo.find_user_by_email(email.into()).await?;
+        if let Some(exists_user) = find_user {
+            return Err(format!(
+                "User with email ${} already exists",
+                exists_user.email
+            ));
+        }
+
+        Ok(())
+    }
 }
 
 #[tonic::async_trait]
 impl UserManagerTrait for UserManagerImpl {
-    async fn user_registration(
-        &self,
-        new_user: NewUserActiveModelWrapper,
-    ) -> Result<DomainUserModel, String> {
-        let created_user = self.repo.create_user(new_user.0).await?;
+    async fn user_registration(&self, new_user: NewUser) -> Result<DomainUserModel, String> {
+        self.check_email_availability(&new_user.email).await?;
+
+        let created_user = self
+            .repo
+            .create_user(NewUserActiveModelWrapper::from(new_user).0)
+            .await?;
 
         Ok(created_user.into())
     }
