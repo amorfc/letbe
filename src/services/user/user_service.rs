@@ -5,7 +5,10 @@ use crate::{
     infra::db_initializor::LetDbConnection,
     services::{
         common::request::request_validator::RequestValidator,
-        proto::user::{user_server::User as UserServer, RegisterUserRequest, RegisterUserResponse},
+        proto::user::{
+            user_server::User as UserServer, LoginUserRequest, LoginUserResponse,
+            RegisterUserRequest, RegisterUserResponse,
+        },
         user::register::register_request::NewUser,
     },
 };
@@ -44,5 +47,14 @@ impl UserServer for UserService<UserManagerImpl> {
         let data = Some(response_data);
         let response = RegisterUserResponse { data };
         Ok(Response::new(response))
+    }
+
+    async fn login_user(
+        &self,
+        _request: Request<LoginUserRequest>,
+    ) -> Result<Response<LoginUserResponse>, Status> {
+        dbg!("login_user");
+
+        Err(Status::unimplemented("Not implemented"))
     }
 }
