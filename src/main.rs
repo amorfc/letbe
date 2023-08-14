@@ -12,6 +12,7 @@ pub mod application;
 pub mod config;
 pub mod infra;
 pub mod services;
+pub mod shared;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
