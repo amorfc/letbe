@@ -18,7 +18,7 @@ pub trait UserRepositoryTrait:
         let a = self.save(user).await?;
         Ok(a)
     }
-    async fn find_user_by_email(&self, email: String) -> Result<Option<UserEntity::Model>, String> {
+    async fn find_user_by_email(&self, email: &str) -> Result<Option<UserEntity::Model>, String> {
         let res = self.find_one(UserEntity::Column::Email.eq(email)).await?;
 
         Ok(res)
