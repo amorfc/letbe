@@ -6,7 +6,7 @@ use crate::{
     services::{
         common::request::request_validator::RequestValidator,
         proto::user::{user_server::User as UserServer, RegisterUserRequest, RegisterUserResponse},
-        user::user_request::NewUser,
+        user::register::register_request::NewUser,
     },
 };
 

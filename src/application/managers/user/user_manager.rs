@@ -8,7 +8,7 @@ use crate::{
         repositories::user::user_repository::{UserRepositoryImpl, UserRepositoryTrait},
     },
     infra::db_initializor::LetDbConnection,
-    services::user::user_request::{NewUser, NewUserActiveModelWrapper},
+    services::user::register::register_request::{NewUser, NewUserActiveModelWrapper},
 };
 
 #[tonic::async_trait]
@@ -49,10 +49,11 @@ impl UserManagerTrait for UserManagerImpl {
     async fn user_registration(&self, new_user: NewUser) -> Result<DomainUserModel, String> {
         self.check_email_availability(&new_user.email).await?;
 
-        let created_user = self
-            .repo
-            .create_user(NewUserActiveModelWrapper::from(new_user).0)
-            .await?;
+        let active_model_wrapper: NewUserActiveModelWrapper = new_user
+            .try_into()
+            .map_err(|err| format!("Internal Server Error while registration, Error while converting to active model: {}", err))?;
+
+        let created_user = self.repo.create_user(active_model_wrapper.0).await?;
 
         Ok(created_user.into())
     }

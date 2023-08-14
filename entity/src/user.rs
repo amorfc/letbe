@@ -7,6 +7,7 @@ pub struct Model {
     pub id: i32,
     pub email: String,
     pub password: String,
+    pub salt: String,
     // Represents a db column using `UserType` active enum
     pub user_type: UserType,
     pub name: String,
