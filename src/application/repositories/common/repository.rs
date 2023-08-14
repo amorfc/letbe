@@ -1,5 +1,7 @@
+use migration::IntoCondition;
 use sea_orm::{
-    ActiveModelBehavior, ActiveModelTrait, DbErr, EntityTrait, IntoActiveModel, TransactionTrait,
+    ActiveModelBehavior, ActiveModelTrait, DbErr, EntityTrait, IntoActiveModel, QueryFilter,
+    TransactionTrait,
 };
 
 use crate::infra::db_initializor::{LetDbConnection, LetDbTransaction};
@@ -26,6 +28,18 @@ where
         match model.insert(db_conn).await {
             Ok(model) => Ok(model.into_active_model()),
             Err(_) => return Err("Failed to insert model".to_string()),
+        }
+    }
+
+    async fn find_one<F>(&self, f: F) -> Result<Option<E::Model>, String>
+    where
+        F: IntoCondition + Send,
+    {
+        let db_conn = self.db_connection();
+
+        match E::find().filter(f).one(db_conn).await {
+            Ok(model) => Ok(model),
+            Err(_) => return Err("Failed to find model".to_string()),
         }
     }
 }
