@@ -6,13 +6,13 @@ use regex::Regex;
 use sea_orm::ActiveValue;
 use validator::Validate;
 
-use crate::services::proto::user::RegisterUserRequest;
+use crate::{services::proto::user::RegisterUserRequest, shared::utils::hasher::LettHasher};
 
 lazy_static! {
     static ref REGEX_USER_TYPE: Regex = Regex::new(r"^\s*(Individual|Corporation)\s*$").unwrap();
 }
 
-#[derive(Debug, Validate, Clone)]
+#[derive(Debug, Validate, Clone, Default)]
 pub struct NewUser {
     #[validate(email(message = "Please enter a valid email"))]
     pub email: String,
@@ -38,6 +38,24 @@ pub struct NewUser {
         message = "Pelease enter a surname between 10 and 30 char"
     ))]
     pub surname: String,
+
+    // These fields are not validated
+    pub salt: Option<String>,
+    pub hashed_password: Option<String>,
+}
+
+impl NewUser {
+    pub fn hash_password(&mut self) -> Result<(), String> {
+        let hasher = LettHasher::hash_with_salt(&self.password)?;
+        self.hashed_password = Some(hasher.hashed);
+        self.salt = Some(hasher.salt);
+
+        Ok(())
+    }
+
+    pub fn is_hashed(&self) -> bool {
+        self.salt.is_some() && self.hashed_password.is_some()
+    }
 }
 
 pub enum RequestUserType {
@@ -92,21 +110,46 @@ impl From<RegisterUserRequest> for NewUser {
             user_type: RequestUserType::from(value.user_type).to_string(),
             name: value.name,
             surname: value.surname,
+            ..Default::default()
         }
     }
 }
 
 pub struct NewUserActiveModelWrapper(pub UserEntity::ActiveModel);
 
-impl From<NewUser> for NewUserActiveModelWrapper {
-    fn from(value: NewUser) -> Self {
-        Self(UserEntity::ActiveModel {
+// impl From<NewUser> for NewUserActiveModelWrapper {
+//     fn from(value: NewUser) -> Self {
+//         Self(UserEntity::ActiveModel {
+//             name: ActiveValue::set(value.name),
+//             surname: ActiveValue::set(value.surname),
+//             email: ActiveValue::set(value.email),
+//             password: ActiveValue::set(value.password),
+//             user_type: ActiveValue::set(UserEntity::UserType::from(value.user_type)),
+//             ..Default::default()
+//         })
+//     }
+// }
+
+impl TryFrom<NewUser> for NewUserActiveModelWrapper {
+    type Error = String;
+
+    fn try_from(mut value: NewUser) -> Result<Self, Self::Error> {
+        value.hash_password()?;
+        let password = value
+            .hashed_password
+            .ok_or_else(|| "Password is not hashed".to_string())?;
+        let salt = value
+            .salt
+            .ok_or_else(|| "Salt could not generated hashed".to_string())?;
+
+        Ok(Self(UserEntity::ActiveModel {
             name: ActiveValue::set(value.name),
             surname: ActiveValue::set(value.surname),
             email: ActiveValue::set(value.email),
-            password: ActiveValue::set(value.password),
+            password: ActiveValue::set(password),
+            salt: ActiveValue::set(salt),
             user_type: ActiveValue::set(UserEntity::UserType::from(value.user_type)),
             ..Default::default()
-        })
+        }))
     }
 }
