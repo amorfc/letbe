@@ -4,7 +4,7 @@ use std::vec;
 
 use sea_orm_migration::prelude::*;
 
-use entity::user::{self, UserType};
+use entity::user::{self, UserTypeEnum};
 
 use crate::utils::migrator_utils;
 
@@ -22,7 +22,7 @@ impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         let (db_postgres, connection, schema) = migrator_utils(manager);
 
-        let create_stms = vec![schema.create_enum_from_active_enum::<UserType>()];
+        let create_stms = vec![schema.create_enum_from_active_enum::<UserTypeEnum>()];
 
         let stms = create_stms
             .iter()
