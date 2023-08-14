@@ -24,8 +24,9 @@ impl DatabaseInitializerImpl for DatabaseInitializer {
     type ErrorType = DbErr;
 
     async fn connect() -> Result<Self::ConnType, Self::ErrorType> {
-        let opt = Self::connection_opt(Self::db_url());
-
+        let url = Self::db_url();
+        println!("DB Url: {}", url);
+        let opt = Self::connection_opt(url);
         let db_conn = Database::connect(opt).await?;
 
         Ok(db_conn)
