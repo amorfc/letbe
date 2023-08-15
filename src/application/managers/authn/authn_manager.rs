@@ -5,7 +5,9 @@ use crate::{
     application::{
         domain::models::authn::domain_authn_model::DomainAuthnModel,
         managers::common::manager::ManagerTrait,
-        repositories::authn::authn_repository::{AuthnRepositoryImpl, AuthnRepositoryTrait},
+        repositories::authn::authn_repository::{
+            AuthnRepositoryImpl, AuthnRepositoryTrait, NewAuthEntityParams,
+        },
     },
     infra::db_initializor::LetDbConnection,
     shared::utils::{
@@ -45,13 +47,12 @@ impl AuthnManagerTrait for AuthnManagerImpl {
         let refresh_token = LettJwt::create_jwt(&refresh_token_claims)?;
         let expired_time = LettDate::dt_with_tz(access_token_claims.exp)?;
 
-        let new_authn_token = AuthnEntity::ActiveModel {
-            user_id: ActiveValue::Set(user_id),
-            device_id: ActiveValue::Set(device_id),
-            access_token: ActiveValue::Set(access_token),
-            refresh_token: ActiveValue::Set(refresh_token),
-            expired_time: ActiveValue::Set(expired_time),
-            ..Default::default()
+        let new_authn_token = NewAuthEntityParams {
+            user_id,
+            device_id,
+            access_token,
+            refresh_token,
+            expired_time,
         };
 
         let authn = self.repo.create_authn_token(new_authn_token).await?;

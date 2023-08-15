@@ -1,5 +1,5 @@
 use entity::authn as AuthnEntity;
-use sea_orm::{entity::prelude::*, ActiveValue};
+use sea_orm::{entity::prelude::*, ActiveValue, TransactionTrait};
 
 use crate::{
     application::repositories::common::repository::{DbConnectionProvider, RepositoryTrait},
@@ -14,14 +14,29 @@ pub trait AuthnRepositoryTrait:
 {
     async fn create_authn_token(
         &self,
-        mut new_authn: AuthnEntity::ActiveModel,
+        new_authn: NewAuthEntityParams,
     ) -> Result<AuthnEntity::ActiveModel, String> {
-        //Check other tokens for same device.
-        //If needed delete others.
-        // todo!();
-        new_authn.created_at = ActiveValue::Set(LettDate::now_dt_with_tz());
+        let now_dt_with_tz = LettDate::now_dt_with_tz();
+        let db_tx = self
+            .db_connection()
+            .begin()
+            .await
+            .map_err(|e| e.to_string())?;
 
-        let authn_token = self.save(new_authn).await?;
+        AuthnEntity::Entity::update_many()
+            .col_expr(AuthnEntity::Column::RevokedAt, Expr::value(now_dt_with_tz))
+            .filter(AuthnEntity::Column::UserId.eq(new_authn.user_id))
+            .filter(AuthnEntity::Column::DeviceId.eq(new_authn.device_id.clone()))
+            .exec_with_returning(&db_tx)
+            .await
+            .map_err(|e| e.to_string())?;
+
+        let active_model = NewAuthActiveModelWrapper::from(new_authn).0;
+
+        let authn_token = self.save(active_model).await?;
+
+        db_tx.commit().await.map_err(|e| e.to_string())?;
+
         Ok(authn_token)
     }
 }
@@ -46,3 +61,29 @@ impl DbConnectionProvider for AuthnRepositoryImpl {
     }
 }
 impl RepositoryTrait<AuthnEntity::ActiveModel, AuthnEntity::Entity> for AuthnRepositoryImpl {}
+
+pub struct NewAuthActiveModelWrapper(AuthnEntity::ActiveModel);
+
+pub struct NewAuthEntityParams {
+    pub user_id: i32,
+    pub device_id: String,
+    pub access_token: String,
+    pub refresh_token: String,
+    pub expired_time: DateTimeWithTimeZone,
+}
+
+impl From<NewAuthEntityParams> for NewAuthActiveModelWrapper {
+    fn from(params: NewAuthEntityParams) -> Self {
+        let now_dt_with_tz = LettDate::now_dt_with_tz();
+        let active_model = AuthnEntity::ActiveModel {
+            user_id: ActiveValue::set(params.user_id),
+            device_id: ActiveValue::set(params.device_id),
+            access_token: ActiveValue::set(params.access_token),
+            refresh_token: ActiveValue::set(params.refresh_token),
+            expired_time: ActiveValue::set(params.expired_time),
+            created_at: ActiveValue::set(now_dt_with_tz),
+            ..Default::default()
+        };
+        Self(active_model)
+    }
+}
