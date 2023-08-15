@@ -8,7 +8,10 @@ use crate::{
         repositories::user::user_repository::{UserRepositoryImpl, UserRepositoryTrait},
     },
     infra::db_initializor::LetDbConnection,
-    services::user::register::register_request::{NewUser, NewUserActiveModelWrapper},
+    services::user::{
+        login::login_request::LoginUser,
+        register::register_request::{NewUser, NewUserActiveModelWrapper},
+    },
 };
 
 #[tonic::async_trait]
@@ -16,6 +19,10 @@ pub trait UserManagerTrait: ManagerTrait<DomainUserModel> {
     async fn user_registration(
         &self,
         input_create_user: NewUser,
+    ) -> Result<DomainUserModel, String>;
+    async fn check_user_credentials(
+        &self,
+        input_login_user: LoginUser,
     ) -> Result<DomainUserModel, String>;
 }
 
@@ -56,6 +63,22 @@ impl UserManagerTrait for UserManagerImpl {
         let created_user = self.repo.create_user(active_model_wrapper.0).await?;
 
         Ok(created_user.into())
+    }
+
+    async fn check_user_credentials(
+        &self,
+        login_user: LoginUser,
+    ) -> Result<DomainUserModel, String> {
+        let find_user = self
+            .repo
+            .find_user_by_email(&login_user.email)
+            .await?
+            .ok_or("User not found")?;
+
+        let domain_user: DomainUserModel = find_user.into();
+        domain_user.verify_password(&login_user.password)?;
+
+        Ok(domain_user)
     }
 }
 
