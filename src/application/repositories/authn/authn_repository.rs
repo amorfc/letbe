@@ -1,9 +1,10 @@
 use entity::authn as AuthnEntity;
-use sea_orm::entity::prelude::*;
+use sea_orm::{entity::prelude::*, ActiveValue};
 
 use crate::{
     application::repositories::common::repository::{DbConnectionProvider, RepositoryTrait},
     infra::db_initializor::LetDbConnection,
+    shared::utils::datetime::LettDate,
 };
 
 // User Manager Trait that requires AuthnRepositoryTrait
@@ -13,9 +14,11 @@ pub trait AuthnRepositoryTrait:
 {
     async fn create_authn_token(
         &self,
-        authn_token: AuthnEntity::ActiveModel,
+        mut new_authn: AuthnEntity::ActiveModel,
     ) -> Result<AuthnEntity::ActiveModel, String> {
-        let authn_token = self.save(authn_token).await?;
+        new_authn.created_at = ActiveValue::Set(LettDate::now_dt_with_tz());
+
+        let authn_token = self.save(new_authn).await?;
         Ok(authn_token)
     }
 }
