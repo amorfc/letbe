@@ -16,7 +16,7 @@ pub struct LoginUser {
     #[validate(length(
         min = 5,
         max = 255,
-        message = "Pelease enter a password between 5 and 255 char"
+        message = "Pelease enter a device id between 5 and 255 char"
     ))]
     pub device_id: String,
 }
