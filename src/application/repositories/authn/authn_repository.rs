@@ -18,7 +18,7 @@ pub trait AuthnRepositoryTrait:
     ) -> Result<AuthnEntity::ActiveModel, String> {
         //Check other tokens for same device.
         //If needed delete others.
-        todo!();
+        // todo!();
         new_authn.created_at = ActiveValue::Set(LettDate::now_dt_with_tz());
 
         let authn_token = self.save(new_authn).await?;
