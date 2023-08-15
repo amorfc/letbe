@@ -1,8 +1,9 @@
 use sea_orm::{ConnectOptions, Database, DatabaseConnection, DatabaseTransaction, DbErr};
+use std::sync::Arc;
 
 use crate::config::ENV_CONFIG;
 
-pub type LetDbConnection = DatabaseConnection;
+pub type LetDbConnection = Arc<DatabaseConnection>;
 pub type LetDbTransaction = DatabaseTransaction;
 
 #[tonic::async_trait]
@@ -29,7 +30,7 @@ impl DatabaseInitializerImpl for DatabaseInitializer {
         let opt = Self::connection_opt(url);
         let db_conn = Database::connect(opt).await?;
 
-        Ok(db_conn)
+        Ok(Arc::new(db_conn))
     }
 
     fn db_url() -> String {

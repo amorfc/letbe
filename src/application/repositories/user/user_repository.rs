@@ -40,7 +40,7 @@ impl UserRepositoryImpl {
 }
 
 impl DbConnectionProvider for UserRepositoryImpl {
-    fn db_connection(&self) -> &LetDbConnection {
+    fn db_connection(&self) -> &DatabaseConnection {
         &self.db_connection
     }
 }

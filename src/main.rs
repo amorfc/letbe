@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     init_environment_vars()?;
     let db = DatabaseInitializer::connect().await?;
 
-    Migrator::up(&db, None).await?;
+    Migrator::up(&*db, None).await?;
 
     let reflection_service = tonic_reflection::server::Builder::configure()
         .register_encoded_file_descriptor_set(UserGrpcServer::descriptor())
@@ -31,7 +31,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Server::builder()
         .add_service(reflection_service)
-        .add_service(UserGrpcServer::new().serve(db))
+        .add_service(UserGrpcServer::new().serve(db.clone()))
         .serve(addr.parse().unwrap())
         .await?;
 

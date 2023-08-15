@@ -1,10 +1,10 @@
 use migration::IntoCondition;
 use sea_orm::{
-    ActiveModelBehavior, ActiveModelTrait, DbErr, EntityTrait, IntoActiveModel, QueryFilter,
-    TransactionTrait,
+    ActiveModelBehavior, ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait, IntoActiveModel,
+    QueryFilter, TransactionTrait,
 };
 
-use crate::infra::db_initializor::{LetDbConnection, LetDbTransaction};
+use crate::infra::db_initializor::LetDbTransaction;
 
 #[tonic::async_trait]
 pub trait RepositoryTrait<A, E>: DbConnectionProvider
@@ -45,7 +45,7 @@ where
 }
 
 pub trait DbConnectionProvider {
-    fn db_connection(&self) -> &LetDbConnection;
+    fn db_connection(&self) -> &DatabaseConnection;
 }
 
 // Define a new trait that provides the db_transaction method
