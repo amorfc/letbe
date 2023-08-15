@@ -61,6 +61,8 @@ impl UserServer for UserService<UserManagerImpl> {
     ) -> Result<Response<LoginUserResponse>, Status> {
         let login_user = LoginUser::from(request.into_inner());
 
+        RequestValidator::new(&login_user).validate_for_response()?;
+
         let logged_in_user = self
             .manager
             .check_user_credentials(login_user.clone())
