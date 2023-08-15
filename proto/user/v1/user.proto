@@ -37,6 +37,7 @@ message RegisteredUserResponseData {
 message LoginUserRequest {
     string email = 1;
     string password = 2;
+    string device_id = 3;
 }
 
 message LoginUserResponse {
