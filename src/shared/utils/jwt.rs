@@ -235,5 +235,6 @@ mod tests {
         dbg!(&new_decoded_refresh_token_claims);
         dbg!(&new_decoded_access_token_claims);
         assert!(new_decoded_refresh_token_claims.exp > new_decoded_access_token_claims.exp);
+        assert!(new_decoded_refresh_token_claims.exp != new_decoded_access_token_claims.exp);
     }
 }
