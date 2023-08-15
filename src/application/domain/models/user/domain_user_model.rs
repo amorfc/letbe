@@ -1,6 +1,9 @@
 use entity::user as UserEntity;
 
-use crate::services::proto::user::{RegisteredUserResponseData, UserType as ResponseUserType};
+use crate::{
+    services::proto::user::{RegisteredUserResponseData, UserType as ResponseUserType},
+    shared::utils::hasher::LettHasher,
+};
 
 pub struct DomainUserModel {
     pub id: i32,
@@ -11,6 +14,17 @@ pub struct DomainUserModel {
     pub user_type: DomainUserType,
     // pub created_at: String,
     // pub updated_at: String,
+}
+
+impl DomainUserModel {
+    pub fn verify_password(&self, password: &str) -> Result<Option<()>, String> {
+        let verified = LettHasher::verify_password(password, &self.password)?;
+        if !verified {
+            return Err("Password is incorrect".to_string());
+        }
+
+        Ok(Some(()))
+    }
 }
 
 impl From<UserEntity::Model> for DomainUserModel {
