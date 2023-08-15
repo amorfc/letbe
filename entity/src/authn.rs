@@ -12,9 +12,9 @@ pub struct Model {
     pub access_token: String,
     pub refresh_token: String,
     pub expired_time: DateTimeWithTimeZone,
+    pub created_at: DateTimeWithTimeZone,
     pub refreshed_at: Option<DateTimeWithTimeZone>,
     pub revoked_at: Option<DateTimeWithTimeZone>,
-    pub created_at: Option<DateTimeWithTimeZone>,
     pub updated_at: Option<DateTimeWithTimeZone>,
 }
 
