@@ -9,10 +9,12 @@ const ENVIRONMENT: &str = "ENVIRONMENT";
 const POSTGRES_USER: &str = "POSTGRES_USER";
 const POSTGRES_PASSWORD: &str = "POSTGRES_PASSWORD";
 
+const DB_NAME: &str = "let_db";
+
 const PRODUCTION_STR: &str = "production";
 const DEVELOPMENT_STR: &str = "development";
 
-const DB_NAME: &str = "let_db";
+const SECRET: &str = "SECRET";
 
 pub struct Config {
     pub db: String,
@@ -22,6 +24,7 @@ pub struct Config {
     pub postgres_user: String,
     pub postgres_password: String,
     pub db_name: String,
+    pub jwt_secret: String,
     pub env: ENV,
 }
 
@@ -30,10 +33,11 @@ pub static ENV_CONFIG: Lazy<Config> = Lazy::new(|| Config {
     db_port: env::var(DB_PORT).expect("DATABASE_URL must be set"),
     host: env::var(HOST).expect("DATABASE_URL must be set"),
     host_port: env::var(HOST_PORT).expect("DATABASE_URL must be set"),
-    env: ENV::from(env::var(ENVIRONMENT).expect("ENVIRONMENT must be set")),
     postgres_user: env::var(POSTGRES_USER).expect("POSTGRES_USER must be set"),
     postgres_password: env::var(POSTGRES_PASSWORD).expect("POSTGRES_PASSWORD must be set"),
     db_name: DB_NAME.to_string(),
+    jwt_secret: env::var(SECRET).expect("SECRET must be set"),
+    env: ENV::from(env::var(ENVIRONMENT).expect("ENVIRONMENT must be set")),
 });
 
 impl Display for Config {
