@@ -14,15 +14,26 @@ pub struct LettJwtClaims {
     exp: usize,
 }
 
-const DEFAULT_TOKEN_EXPIRE: usize = 60 * 60 * 24; // 1 days
+const DEF_ACCESS_TOKEN_EXPIRE_MS: usize = 60 * 60 * 1000; // 1 hour
+const DEF_REFRESH_TOKEN_EXPIRE_MS: usize = 60 * 60 * 24 * 7 * 1000; // 1 week
 
 impl LettJwtClaims {
-    pub fn new(user_id: i32, device_id: String, exp: Option<usize>) -> Self {
+    pub fn access_token(user_id: i32, device_id: String, exp: Option<usize>) -> Self {
         Self {
             user_id,
             device_id,
             exp: exp.unwrap_or_else(|| {
-                LettDate::utc_now().timestamp_millis() as usize + DEFAULT_TOKEN_EXPIRE
+                LettDate::utc_now().timestamp_millis() as usize + DEF_ACCESS_TOKEN_EXPIRE_MS
+            }),
+        }
+    }
+
+    pub fn refresh_token(user_id: i32, device_id: String, exp: Option<usize>) -> Self {
+        Self {
+            user_id,
+            device_id,
+            exp: exp.unwrap_or_else(|| {
+                LettDate::utc_now().timestamp_millis() as usize + DEF_REFRESH_TOKEN_EXPIRE_MS
             }),
         }
     }
@@ -45,6 +56,31 @@ impl LettJwt {
                 .map_err(|e| e.to_string())?;
 
         Ok(decoded.claims)
+    }
+
+    pub fn refresh_access_refresh_tokens(
+        refresh_token: &str,
+        access_expr: Option<usize>,
+        refresh_expr: Option<usize>,
+    ) -> Result<(String, String), String> {
+        let decoded_claims = Self::decode(refresh_token)?;
+
+        let access_token_claims = LettJwtClaims::access_token(
+            decoded_claims.user_id,
+            decoded_claims.device_id.clone(),
+            access_expr,
+        );
+
+        let refresh_token_claims = LettJwtClaims::refresh_token(
+            decoded_claims.user_id,
+            decoded_claims.device_id,
+            refresh_expr,
+        );
+
+        let access_token = Self::encode(&access_token_claims)?;
+        let refresh_token = Self::encode(&refresh_token_claims)?;
+
+        Ok((access_token, refresh_token))
     }
 
     fn algorithm() -> Algorithm {
