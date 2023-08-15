@@ -19,6 +19,7 @@ jobs:
       DB_PORT: ${{ secrets.DB_PORT }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      SECRET: ${{ secrets.SECRET }}
 
     steps:
       - name: Checkout code
@@ -34,6 +35,7 @@ jobs:
           echo DB_PORT=${{ env.DB_PORT }} >> .env
           echo POSTGRES_USER=${{ env.POSTGRES_USER }} >> .env
           echo POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }} >> .env
+          echo SECRET=${{ env.SECRET }} >> .env
 
       - name: Cache dependencies
         uses: actions/cache@v3
@@ -89,6 +91,7 @@ jobs:
       DB_PORT: ${{ secrets.DB_PORT }}
       POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      SECRET: ${{ secrets.SECRET }}
 
     runs-on: ubuntu-latest
 
@@ -106,6 +109,7 @@ jobs:
           echo DB_PORT=${{ env.DB_PORT }} >> .env
           echo POSTGRES_USER=${{ env.POSTGRES_USER }} >> .env
           echo POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }} >> .env
+          echo SECRET=${{ env.SECRET }} >> .env
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
