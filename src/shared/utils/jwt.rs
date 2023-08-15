@@ -9,9 +9,9 @@ use super::datetime::LettDate;
 /// Our claims struct, it needs to derive `Serialize` and/or `Deserialize`
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct LettJwtClaims {
-    user_id: i32,
-    device_id: String,
-    exp: usize,
+    pub user_id: i32,
+    pub device_id: String,
+    pub exp: usize,
 }
 
 const DEF_ACCESS_TOKEN_EXPIRE_MS: usize = 60 * 60 * 1000; // 1 hour
@@ -43,14 +43,21 @@ impl LettJwtClaims {
 pub struct LettJwt {}
 
 impl LettJwt {
-    pub fn encode(claims: &LettJwtClaims) -> Result<String, String> {
+    pub fn create_jwt(claims: &LettJwtClaims) -> Result<String, String> {
+        Self::encode(claims)
+    }
+    pub fn expose_jwt(jwt_token: &str) -> Result<LettJwtClaims, String> {
+        Self::decode(jwt_token)
+    }
+
+    fn encode(claims: &LettJwtClaims) -> Result<String, String> {
         let encoded = encode::<LettJwtClaims>(&Self::header(), claims, &Self::encoding_key())
             .map_err(|e| e.to_string())?;
 
         Ok(encoded)
     }
 
-    pub fn decode(jwt_token: &str) -> Result<LettJwtClaims, String> {
+    fn decode(jwt_token: &str) -> Result<LettJwtClaims, String> {
         let decoded =
             decode::<LettJwtClaims>(jwt_token, &Self::decoding_key(), &Self::validation())
                 .map_err(|e| e.to_string())?;
@@ -144,9 +151,9 @@ mod tests {
         load_dummy_envs();
         let claims = get_access_token_user_claims(None);
 
-        let token = LettJwt::encode(&claims).unwrap();
+        let token = LettJwt::create_jwt(&claims).unwrap();
 
-        let decoded_claims = LettJwt::decode(&token).unwrap();
+        let decoded_claims = LettJwt::expose_jwt(&token).unwrap();
 
         assert_eq!(claims, decoded_claims);
     }
@@ -156,7 +163,7 @@ mod tests {
         load_dummy_envs();
         let mut claims = get_access_token_user_claims(None);
 
-        let token = LettJwt::encode(&claims).unwrap();
+        let token = LettJwt::create_jwt(&claims).unwrap();
 
         claims.user_id = 0;
 
@@ -173,11 +180,11 @@ mod tests {
         let expr_millis = one_sec_dur.as_millis() as usize;
         let claims = get_access_token_user_claims(Some(expr_millis));
 
-        let token = LettJwt::encode(&claims).unwrap();
+        let token = LettJwt::create_jwt(&claims).unwrap();
 
         thread::sleep(one_sec_dur);
 
-        let rs = LettJwt::decode(&token);
+        let rs = LettJwt::expose_jwt(&token);
         let is_error = rs.is_err();
         let error_message = rs.unwrap_err();
 
@@ -192,11 +199,11 @@ mod tests {
         let access_token_claims = get_access_token_user_claims(None);
         let refresh_token_claims = get_refresh_token_user_claims(None);
 
-        let access_token = LettJwt::encode(&access_token_claims).unwrap();
-        let refresh_token = LettJwt::encode(&refresh_token_claims).unwrap();
+        let access_token = LettJwt::create_jwt(&access_token_claims).unwrap();
+        let refresh_token = LettJwt::create_jwt(&refresh_token_claims).unwrap();
 
-        let decoded_access_token_claims = LettJwt::decode(&access_token).unwrap();
-        let decoded_refresh_token_claims = LettJwt::decode(&refresh_token).unwrap();
+        let decoded_access_token_claims = LettJwt::expose_jwt(&access_token).unwrap();
+        let decoded_refresh_token_claims = LettJwt::expose_jwt(&refresh_token).unwrap();
 
         assert_eq!(
             decoded_access_token_claims.device_id,
@@ -210,8 +217,8 @@ mod tests {
         let (new_access_token, new_refresh_token) =
             LettJwt::refresh_access_refresh_tokens(&refresh_token, None, None).unwrap();
 
-        let new_decoded_access_token_claims = LettJwt::decode(&new_access_token).unwrap();
-        let new_decoded_refresh_token_claims = LettJwt::decode(&new_refresh_token).unwrap();
+        let new_decoded_access_token_claims = LettJwt::expose_jwt(&new_access_token).unwrap();
+        let new_decoded_refresh_token_claims = LettJwt::expose_jwt(&new_refresh_token).unwrap();
 
         assert_eq!(
             decoded_access_token_claims.device_id,
