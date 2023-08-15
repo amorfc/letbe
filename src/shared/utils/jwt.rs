@@ -124,13 +124,25 @@ mod tests {
         env::set_var("ENVIRONMENT", "test");
     }
 
+    fn get_access_token_user_claims(expr: Option<usize>) -> LettJwtClaims {
+        let user_id = 31;
+        let device_id = "AppleMacbook123123".to_string();
+
+        LettJwtClaims::access_token(user_id, device_id, expr)
+    }
+
+    fn get_refresh_token_user_claims(expr: Option<usize>) -> LettJwtClaims {
+        let user_id = 31;
+        let device_id = "AppleMacbook123123".to_string();
+
+        LettJwtClaims::refresh_token(user_id, device_id, expr)
+    }
+
     #[test]
 
     fn valid_jwt_tests() {
         load_dummy_envs();
-        let user_id = 31;
-        let device_id = "AppleMacbook123123".to_string();
-        let claims = LettJwtClaims::new(user_id, device_id, None);
+        let claims = get_access_token_user_claims(None);
 
         let token = LettJwt::encode(&claims).unwrap();
 
@@ -142,9 +154,7 @@ mod tests {
     #[test]
     fn invalid_jwt_tests() {
         load_dummy_envs();
-        let user_id = 31;
-        let device_id = "AppleMacbook123123".to_string();
-        let mut claims = LettJwtClaims::new(user_id, device_id, None);
+        let mut claims = get_access_token_user_claims(None);
 
         let token = LettJwt::encode(&claims).unwrap();
 
@@ -161,9 +171,7 @@ mod tests {
 
         let one_sec_dur = Duration::from_secs(1);
         let expr_millis = one_sec_dur.as_millis() as usize;
-        let user_id = 31;
-        let device_id = "AppleMacbook123123".to_string();
-        let claims = LettJwtClaims::new(user_id, device_id, Some(expr_millis));
+        let claims = get_access_token_user_claims(Some(expr_millis));
 
         let token = LettJwt::encode(&claims).unwrap();
 
@@ -175,5 +183,57 @@ mod tests {
 
         assert!(is_error);
         assert_eq!(error_message, "ExpiredSignature".to_string());
+    }
+
+    #[test]
+    fn test_refresh_token() {
+        load_dummy_envs();
+
+        let access_token_claims = get_access_token_user_claims(None);
+        let refresh_token_claims = get_refresh_token_user_claims(None);
+
+        let access_token = LettJwt::encode(&access_token_claims).unwrap();
+        let refresh_token = LettJwt::encode(&refresh_token_claims).unwrap();
+
+        let decoded_access_token_claims = LettJwt::decode(&access_token).unwrap();
+        let decoded_refresh_token_claims = LettJwt::decode(&refresh_token).unwrap();
+
+        assert_eq!(
+            decoded_access_token_claims.device_id,
+            decoded_refresh_token_claims.device_id
+        );
+        assert_eq!(
+            decoded_access_token_claims.user_id,
+            decoded_refresh_token_claims.user_id
+        );
+
+        let (new_access_token, new_refresh_token) =
+            LettJwt::refresh_access_refresh_tokens(&refresh_token, None, None).unwrap();
+
+        let new_decoded_access_token_claims = LettJwt::decode(&new_access_token).unwrap();
+        let new_decoded_refresh_token_claims = LettJwt::decode(&new_refresh_token).unwrap();
+
+        assert_eq!(
+            decoded_access_token_claims.device_id,
+            new_decoded_access_token_claims.device_id
+        );
+
+        assert_eq!(
+            decoded_access_token_claims.user_id,
+            new_decoded_access_token_claims.user_id
+        );
+
+        assert_eq!(
+            decoded_refresh_token_claims.user_id,
+            new_decoded_refresh_token_claims.user_id
+        );
+
+        assert_eq!(
+            decoded_refresh_token_claims.device_id,
+            new_decoded_refresh_token_claims.device_id
+        );
+        dbg!(&new_decoded_refresh_token_claims);
+        dbg!(&new_decoded_access_token_claims);
+        assert!(new_decoded_refresh_token_claims.exp > new_decoded_access_token_claims.exp);
     }
 }
