@@ -1,6 +1,6 @@
 use argon2::{
     password_hash::{rand_core::OsRng, SaltString},
-    Argon2, PasswordHash, PasswordHasher, PasswordVerifier,
+    Argon2, Params, PasswordHash, PasswordHasher, PasswordVerifier,
 };
 
 #[derive(Debug, Clone)]
@@ -11,7 +11,18 @@ pub struct LettHasher {
 
 impl LettHasher {
     fn argon2_hasher() -> Argon2<'static> {
-        Argon2::default()
+        let params = Params::new(
+            4096, // Amunt of memory to use (memory cost)
+            2,    // Number of iterations (time cost)
+            1, None,
+        )
+        .unwrap_or_default();
+
+        Argon2::new(
+            argon2::Algorithm::Argon2id, // Algorithm variant
+            argon2::Version::V0x10,
+            params,
+        )
     }
     pub fn hash_with_salt(password: &str) -> Result<Self, String> {
         let salt = SaltString::generate(&mut OsRng);
