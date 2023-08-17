@@ -11,6 +11,7 @@ use crate::{
         },
     },
     infra::db_initializor::LetDbConnection,
+    services::common::response::response_status::LettResError,
     shared::utils::{
         datetime::LettDate,
         jwt::{LettJwt, LettJwtClaims},
@@ -19,7 +20,10 @@ use crate::{
 
 #[tonic::async_trait]
 pub trait AuthnManagerTrait: ManagerTrait<DomainAuthnModel> {
-    async fn generate_jwt_token(&self, params: NewJwtParams) -> Result<DomainAuthnModel>;
+    async fn generate_jwt_token(
+        &self,
+        params: NewJwtParams,
+    ) -> Result<DomainAuthnModel, LettResError>;
 }
 
 // Implementation of AuthnManagerTrait
@@ -37,7 +41,10 @@ impl AuthnManagerImpl {
 
 #[tonic::async_trait]
 impl AuthnManagerTrait for AuthnManagerImpl {
-    async fn generate_jwt_token(&self, params: NewJwtParams) -> Result<DomainAuthnModel> {
+    async fn generate_jwt_token(
+        &self,
+        params: NewJwtParams,
+    ) -> Result<DomainAuthnModel, LettResError> {
         let user_id = params.user_id;
         let device_id = params.device_id.clone();
 

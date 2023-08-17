@@ -10,7 +10,7 @@ use crate::{
     },
     infra::db_initializor::LetDbConnection,
     services::{
-        common::response::response_status::LettError,
+        common::response::response_status::LettResError,
         user::{
             login::login_request::LoginUser,
             register::register_request::{NewUser, NewUserActiveModelWrapper},
@@ -23,11 +23,11 @@ pub trait UserManagerTrait: ManagerTrait<DomainUserModel> {
     async fn user_registration(
         &self,
         input_create_user: NewUser,
-    ) -> Result<DomainUserModel, LettError>;
+    ) -> Result<DomainUserModel, LettResError>;
     async fn check_user_credentials(
         &self,
         input_login_user: LoginUser,
-    ) -> Result<DomainUserModel, LettError>;
+    ) -> Result<DomainUserModel, LettResError>;
 }
 
 // Implementation of UserManagerTrait
@@ -54,7 +54,7 @@ impl UserManagerImpl {
 
 #[tonic::async_trait]
 impl UserManagerTrait for UserManagerImpl {
-    async fn user_registration(&self, new_user: NewUser) -> Result<DomainUserModel, LettError> {
+    async fn user_registration(&self, new_user: NewUser) -> Result<DomainUserModel, LettResError> {
         self.check_email_availability(&new_user.email).await?;
 
         let active_model_wrapper: NewUserActiveModelWrapper = new_user.try_into()?;
@@ -67,7 +67,7 @@ impl UserManagerTrait for UserManagerImpl {
     async fn check_user_credentials(
         &self,
         login_user: LoginUser,
-    ) -> Result<DomainUserModel, LettError> {
+    ) -> Result<DomainUserModel, LettResError> {
         let find_user = self
             .repo
             .find_user_by_email(&login_user.email)

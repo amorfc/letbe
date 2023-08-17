@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+use anyhow::{anyhow, Result};
 use entity::user as UserEntity;
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -45,7 +46,7 @@ pub struct NewUser {
 }
 
 impl NewUser {
-    pub fn hash_password(&mut self) -> Result<(), String> {
+    pub fn hash_password(&mut self) -> Result<()> {
         let hasher = LettHasher::hash_with_salt(&self.password)?;
         self.hashed_password = Some(hasher.hashed);
         self.salt = Some(hasher.salt);
@@ -117,30 +118,18 @@ impl From<RegisterUserRequest> for NewUser {
 
 pub struct NewUserActiveModelWrapper(pub UserEntity::ActiveModel);
 
-// impl From<NewUser> for NewUserActiveModelWrapper {
-//     fn from(value: NewUser) -> Self {
-//         Self(UserEntity::ActiveModel {
-//             name: ActiveValue::set(value.name),
-//             surname: ActiveValue::set(value.surname),
-//             email: ActiveValue::set(value.email),
-//             password: ActiveValue::set(value.password),
-//             user_type: ActiveValue::set(UserEntity::UserType::from(value.user_type)),
-//             ..Default::default()
-//         })
-//     }
-// }
-
 impl TryFrom<NewUser> for NewUserActiveModelWrapper {
-    type Error = String;
+    type Error = anyhow::Error;
 
     fn try_from(mut value: NewUser) -> Result<Self, Self::Error> {
         value.hash_password()?;
         let password = value
             .hashed_password
-            .ok_or_else(|| "Password is not hashed".to_string())?;
+            .ok_or(anyhow!("Password could not generated hashed"))?;
+
         let salt = value
             .salt
-            .ok_or_else(|| "Salt could not generated hashed".to_string())?;
+            .ok_or(anyhow!("Salt could not generated hashed"))?;
 
         Ok(Self(UserEntity::ActiveModel {
             name: ActiveValue::set(value.name),
