@@ -27,6 +27,8 @@ chrono = { version = "0.4.19", features = ["serde"] }
 #Disable the default feature `use_pem`:
 jsonwebtoken = {version = "8", default-features = false }
 serde = {version = "1.0", features = ["derive"] }
+anyhow = { version = "1.0.75", features = ["backtrace"] }
+thiserror = "1.0.47"
 
 [build-dependencies]
 tonic-build = "0.9.2"
