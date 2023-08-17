@@ -5,29 +5,34 @@ use tonic::{
 
 use thiserror::Error;
 
-impl From<LettError> for Status {
-    fn from(value: LettError) -> Self {
+impl From<LettResError> for Status {
+    fn from(value: LettResError) -> Self {
         value.to_status()
     }
 }
 
 #[derive(Error, Debug)]
-pub enum LettError {
+pub enum LettResError {
     #[error("Entity {entity:?} not found")]
     NotFound { entity: String, id: String },
+
     #[error("Internal error occured: {0}")]
     InternalServerError(String),
+
     #[error("Unauthorized email please re login: {email:?}. {message:?}")]
     Unauthorized { email: String, message: String },
+
     #[error("Opss! Somethings went wrong. {0} ")]
     BadRequest(String),
-    #[error("{0}")]
-    DevInfo(String),
-    #[error("Error {0}   ")]
+
+    #[error(transparent)]
+    DevInfo(#[from] anyhow::Error),
+
+    #[error("Error {0}")]
     Other(String),
 }
 
-impl LettError {
+impl LettResError {
     pub fn to_status(&self) -> Status {
         let message = self.to_string();
         let code = self.code();
@@ -80,11 +85,5 @@ impl ToString for LettMessageInfo {
             Self::SHOW => "SHOW".to_string(),
             Self::SNEAKY => "SNEAKY".to_string(),
         }
-    }
-}
-
-impl From<anyhow::Error> for LettError {
-    fn from(value: anyhow::Error) -> Self {
-        Self::InternalServerError(value.to_string())
     }
 }
