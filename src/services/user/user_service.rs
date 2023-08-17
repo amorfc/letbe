@@ -42,11 +42,7 @@ impl UserServer for UserService<UserManagerImpl> {
 
         RequestValidator::new(&new_user).validate_for_response()?;
 
-        let registered_user = self
-            .manager
-            .user_registration(new_user)
-            .await
-            .map_err(Status::cancelled)?;
+        let registered_user = self.manager.user_registration(new_user).await?;
 
         let response_data = registered_user.into();
 
@@ -66,8 +62,7 @@ impl UserServer for UserService<UserManagerImpl> {
         let logged_in_user = self
             .manager
             .check_user_credentials(login_user.clone())
-            .await
-            .map_err(Status::cancelled)?;
+            .await?;
 
         let authn_token = self
             .authn_manager
@@ -75,8 +70,7 @@ impl UserServer for UserService<UserManagerImpl> {
                 user_id: logged_in_user.id,
                 device_id: login_user.device_id,
             })
-            .await
-            .map_err(Status::cancelled)?;
+            .await?;
 
         let response_data = authn_token.into();
 
