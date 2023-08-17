@@ -1,3 +1,4 @@
+use anyhow::{bail, Result};
 use entity::user as UserEntity;
 
 use crate::{
@@ -17,10 +18,10 @@ pub struct DomainUserModel {
 }
 
 impl DomainUserModel {
-    pub fn verify_password(&self, password: &str) -> Result<Option<()>, String> {
+    pub fn verify_password(&self, password: &str) -> Result<Option<()>> {
         let verified = LettHasher::verify_password(password, &self.password)?;
         if !verified {
-            return Err("Password is incorrect".to_string());
+            bail!("Password is incorrect")
         }
 
         Ok(Some(()))

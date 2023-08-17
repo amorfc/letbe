@@ -1,5 +1,6 @@
+use anyhow::Result;
 use entity::authn as AuthnEntity;
-use sea_orm::{ActiveValue, TryIntoModel};
+use sea_orm::TryIntoModel;
 
 use crate::{
     application::{
@@ -18,7 +19,7 @@ use crate::{
 
 #[tonic::async_trait]
 pub trait AuthnManagerTrait: ManagerTrait<DomainAuthnModel> {
-    async fn generate_jwt_token(&self, params: NewJwtParams) -> Result<DomainAuthnModel, String>;
+    async fn generate_jwt_token(&self, params: NewJwtParams) -> Result<DomainAuthnModel>;
 }
 
 // Implementation of AuthnManagerTrait
@@ -36,7 +37,7 @@ impl AuthnManagerImpl {
 
 #[tonic::async_trait]
 impl AuthnManagerTrait for AuthnManagerImpl {
-    async fn generate_jwt_token(&self, params: NewJwtParams) -> Result<DomainAuthnModel, String> {
+    async fn generate_jwt_token(&self, params: NewJwtParams) -> Result<DomainAuthnModel> {
         let user_id = params.user_id;
         let device_id = params.device_id.clone();
 

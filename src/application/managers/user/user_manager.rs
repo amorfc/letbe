@@ -1,3 +1,4 @@
+use anyhow::{anyhow, bail, Result};
 use entity::user;
 use sea_orm::TryIntoModel;
 
@@ -8,9 +9,12 @@ use crate::{
         repositories::user::user_repository::{UserRepositoryImpl, UserRepositoryTrait},
     },
     infra::db_initializor::LetDbConnection,
-    services::user::{
-        login::login_request::LoginUser,
-        register::register_request::{NewUser, NewUserActiveModelWrapper},
+    services::{
+        common::response::response_status::LettError,
+        user::{
+            login::login_request::LoginUser,
+            register::register_request::{NewUser, NewUserActiveModelWrapper},
+        },
     },
 };
 
@@ -19,11 +23,11 @@ pub trait UserManagerTrait: ManagerTrait<DomainUserModel> {
     async fn user_registration(
         &self,
         input_create_user: NewUser,
-    ) -> Result<DomainUserModel, String>;
+    ) -> Result<DomainUserModel, LettError>;
     async fn check_user_credentials(
         &self,
         input_login_user: LoginUser,
-    ) -> Result<DomainUserModel, String>;
+    ) -> Result<DomainUserModel, LettError>;
 }
 
 // Implementation of UserManagerTrait
@@ -38,13 +42,10 @@ impl UserManagerImpl {
         }
     }
 
-    pub async fn check_email_availability(&self, email: &str) -> Result<(), String> {
+    pub async fn check_email_availability(&self, email: &str) -> Result<()> {
         let find_user = self.repo.find_user_by_email(email).await?;
         if let Some(exists_user) = find_user {
-            return Err(format!(
-                "User with email ${} already exists",
-                exists_user.email
-            ));
+            bail!("User with email ${} already exists", exists_user.email);
         }
 
         Ok(())
@@ -53,12 +54,10 @@ impl UserManagerImpl {
 
 #[tonic::async_trait]
 impl UserManagerTrait for UserManagerImpl {
-    async fn user_registration(&self, new_user: NewUser) -> Result<DomainUserModel, String> {
+    async fn user_registration(&self, new_user: NewUser) -> Result<DomainUserModel, LettError> {
         self.check_email_availability(&new_user.email).await?;
 
-        let active_model_wrapper: NewUserActiveModelWrapper = new_user
-            .try_into()
-            .map_err(|err| format!("Internal Server Error while registration, Error while converting to active model: {}", err))?;
+        let active_model_wrapper: NewUserActiveModelWrapper = new_user.try_into()?;
 
         let created_user = self.repo.create_user(active_model_wrapper.0).await?;
 
@@ -68,12 +67,12 @@ impl UserManagerTrait for UserManagerImpl {
     async fn check_user_credentials(
         &self,
         login_user: LoginUser,
-    ) -> Result<DomainUserModel, String> {
+    ) -> Result<DomainUserModel, LettError> {
         let find_user = self
             .repo
             .find_user_by_email(&login_user.email)
             .await?
-            .ok_or("User not found")?;
+            .ok_or(anyhow!("User not found"))?;
 
         let domain_user: DomainUserModel = find_user.into();
         domain_user.verify_password(&login_user.password)?;
