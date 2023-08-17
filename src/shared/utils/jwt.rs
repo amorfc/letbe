@@ -1,3 +1,4 @@
+use anyhow::Result;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 
 use serde::{Deserialize, Serialize};
@@ -43,24 +44,22 @@ impl LettJwtClaims {
 pub struct LettJwt {}
 
 impl LettJwt {
-    pub fn create_jwt(claims: &LettJwtClaims) -> Result<String, String> {
+    pub fn create_jwt(claims: &LettJwtClaims) -> Result<String> {
         Self::encode(claims)
     }
-    pub fn expose_jwt(jwt_token: &str) -> Result<LettJwtClaims, String> {
+    pub fn expose_jwt(jwt_token: &str) -> Result<LettJwtClaims> {
         Self::decode(jwt_token)
     }
 
-    fn encode(claims: &LettJwtClaims) -> Result<String, String> {
-        let encoded = encode::<LettJwtClaims>(&Self::header(), claims, &Self::encoding_key())
-            .map_err(|e| e.to_string())?;
+    fn encode(claims: &LettJwtClaims) -> Result<String> {
+        let encoded = encode::<LettJwtClaims>(&Self::header(), claims, &Self::encoding_key())?;
 
         Ok(encoded)
     }
 
-    fn decode(jwt_token: &str) -> Result<LettJwtClaims, String> {
+    fn decode(jwt_token: &str) -> Result<LettJwtClaims> {
         let decoded =
-            decode::<LettJwtClaims>(jwt_token, &Self::decoding_key(), &Self::validation())
-                .map_err(|e| e.to_string())?;
+            decode::<LettJwtClaims>(jwt_token, &Self::decoding_key(), &Self::validation())?;
 
         Ok(decoded.claims)
     }
@@ -69,7 +68,7 @@ impl LettJwt {
         refresh_token: &str,
         access_expr: Option<usize>,
         refresh_expr: Option<usize>,
-    ) -> Result<(String, String), String> {
+    ) -> Result<(String, String)> {
         let decoded_claims = Self::decode(refresh_token)?;
 
         let access_token_claims = LettJwtClaims::access_token(
@@ -186,7 +185,7 @@ mod tests {
 
         let rs = LettJwt::expose_jwt(&token);
         let is_error = rs.is_err();
-        let error_message = rs.unwrap_err();
+        let error_message = rs.unwrap_err().to_string();
 
         assert!(is_error);
         assert_eq!(error_message, "ExpiredSignature".to_string());

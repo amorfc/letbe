@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use argon2::{
     password_hash::{rand_core::OsRng, SaltString},
     Argon2, Params, PasswordHash, PasswordHasher, PasswordVerifier,
@@ -24,11 +25,11 @@ impl LettHasher {
             params,
         )
     }
-    pub fn hash_with_salt(password: &str) -> Result<Self, String> {
+    pub fn hash_with_salt(password: &str) -> Result<Self> {
         let salt = SaltString::generate(&mut OsRng);
         let hash = LettHasher::argon2_hasher()
             .hash_password(password.as_bytes(), &salt)
-            .map_err(|e| e.to_string())?;
+            .map_err(|e| anyhow!(e))?;
 
         Ok(Self {
             hashed: hash.to_string(),
@@ -36,8 +37,8 @@ impl LettHasher {
         })
     }
 
-    pub fn verify_password(password: &str, password_hash: &str) -> Result<bool, String> {
-        let parsed_hash = PasswordHash::new(password_hash).map_err(|e| e.to_string())?;
+    pub fn verify_password(password: &str, password_hash: &str) -> Result<bool> {
+        let parsed_hash = PasswordHash::new(password_hash).map_err(|e| anyhow!(e))?;
 
         Ok(LettHasher::argon2_hasher()
             .verify_password(password.as_bytes(), &parsed_hash)
