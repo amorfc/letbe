@@ -1,3 +1,4 @@
+use anyhow::Result;
 use entity::authn as AuthnEntity;
 use sea_orm::{entity::prelude::*, ActiveValue, TransactionTrait};
 
@@ -15,27 +16,22 @@ pub trait AuthnRepositoryTrait:
     async fn create_authn_token(
         &self,
         new_authn: NewAuthEntityParams,
-    ) -> Result<AuthnEntity::ActiveModel, String> {
+    ) -> Result<AuthnEntity::ActiveModel> {
         let now_dt_with_tz = LettDate::now_dt_with_tz();
-        let db_tx = self
-            .db_connection()
-            .begin()
-            .await
-            .map_err(|e| e.to_string())?;
+        let db_tx = self.db_connection().begin().await?;
 
         AuthnEntity::Entity::update_many()
             .col_expr(AuthnEntity::Column::RevokedAt, Expr::value(now_dt_with_tz))
             .filter(AuthnEntity::Column::UserId.eq(new_authn.user_id))
             .filter(AuthnEntity::Column::DeviceId.eq(new_authn.device_id.clone()))
             .exec_with_returning(&db_tx)
-            .await
-            .map_err(|e| e.to_string())?;
+            .await?;
 
         let active_model = NewAuthActiveModelWrapper::from(new_authn).0;
 
         let authn_token = self.save(active_model).await?;
 
-        db_tx.commit().await.map_err(|e| e.to_string())?;
+        db_tx.commit().await?;
 
         Ok(authn_token)
     }

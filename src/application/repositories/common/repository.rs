@@ -1,3 +1,4 @@
+use anyhow::Result;
 use migration::IntoCondition;
 use sea_orm::{
     ActiveModelBehavior, ActiveModelTrait, DatabaseConnection, DbErr, EntityTrait, IntoActiveModel,
@@ -13,34 +14,29 @@ where
     <A::Entity as EntityTrait>::Model: IntoActiveModel<A>,
     E: EntityTrait + 'static,
 {
-    async fn save(&self, model: A) -> Result<A, String> {
+    async fn save(&self, model: A) -> Result<A> {
         let db_conn = self.db_connection();
 
-        match model.save(db_conn).await {
-            Ok(model) => Ok(model),
-            Err(_) => return Err("Failed to save model".to_string()),
-        }
+        let res = model.save(db_conn).await?;
+
+        Ok(res)
     }
 
-    async fn insert(&self, model: A) -> Result<A, String> {
+    async fn insert(&self, model: A) -> Result<A> {
         let db_conn = self.db_connection();
 
-        match model.insert(db_conn).await {
-            Ok(model) => Ok(model.into_active_model()),
-            Err(_) => return Err("Failed to insert model".to_string()),
-        }
+        let res = model.insert(db_conn).await?;
+        Ok(res.into_active_model())
     }
 
-    async fn find_one<F>(&self, f: F) -> Result<Option<E::Model>, String>
+    async fn find_one<F>(&self, f: F) -> Result<Option<E::Model>>
     where
         F: IntoCondition + Send,
     {
         let db_conn = self.db_connection();
 
-        match E::find().filter(f).one(db_conn).await {
-            Ok(model) => Ok(model),
-            Err(_) => return Err("Failed to find model".to_string()),
-        }
+        let res = E::find().filter(f).one(db_conn).await?;
+        Ok(res)
     }
 }
 
