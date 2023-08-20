@@ -27,7 +27,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap();
 
     let addr = format!("{}:{}", ENV_CONFIG.host, ENV_CONFIG.host_port);
-    println!("Server running on {}", addr);
+    println!("Server running on  {}", addr);
 
     Server::builder()
         .add_service(reflection_service)
