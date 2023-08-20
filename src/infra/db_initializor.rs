@@ -1,8 +1,10 @@
-use std::time::Duration;
+use sea_orm::{ConnectOptions, Database, DatabaseConnection, DatabaseTransaction, DbErr};
+use std::sync::Arc;
 
-use sea_orm::{ConnectOptions, Database, DbErr};
+use crate::config::ENV_CONFIG;
 
-use crate::{config::ENV_CONFIG, LetDbConnection};
+pub type LetDbConnection = Arc<DatabaseConnection>;
+pub type LetDbTransaction = DatabaseTransaction;
 
 #[tonic::async_trait]
 pub trait DatabaseInitializerImpl {
@@ -23,11 +25,12 @@ impl DatabaseInitializerImpl for DatabaseInitializer {
     type ErrorType = DbErr;
 
     async fn connect() -> Result<Self::ConnType, Self::ErrorType> {
-        let opt = Self::connection_opt(Self::db_url());
-
+        let url = Self::db_url();
+        println!("DB Url: {}", url);
+        let opt = Self::connection_opt(url);
         let db_conn = Database::connect(opt).await?;
 
-        Ok(db_conn)
+        Ok(Arc::new(db_conn))
     }
 
     fn db_url() -> String {
@@ -45,10 +48,10 @@ impl DatabaseInitializerImpl for DatabaseInitializer {
         let mut opt = ConnectOptions::new(db_url);
         opt.max_connections(100)
             .min_connections(5)
-            .connect_timeout(Duration::from_secs(8))
-            .acquire_timeout(Duration::from_secs(8))
-            .idle_timeout(Duration::from_secs(30))
-            .max_lifetime(Duration::from_secs(30))
+            // .connect_timeout(Duration::from_secs(8))
+            // .acquire_timeout(Duration::from_secs(8))
+            // .idle_timeout(Duration::from_secs(30))
+            // .max_lifetime(Duration::from_secs(30))
             .sqlx_logging(true)
             .to_owned()
     }

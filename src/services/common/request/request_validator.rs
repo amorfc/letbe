@@ -30,27 +30,27 @@ impl<'a, T: Validate> RequestValidator<'a, T> {
 }
 
 trait ValidateExt {
-    fn as_lett_error(v: &Box<ValidationErrors>) -> Vec<String>;
+    fn as_lett_error(v: &ValidationErrors) -> Vec<String>;
 }
 
 impl ValidateExt for dyn Validate {
-    fn as_lett_error(v: &Box<ValidationErrors>) -> Vec<String> {
+    fn as_lett_error(v: &ValidationErrors) -> Vec<String> {
         let mut error_messages: Vec<String> = vec![];
 
-        v.errors().into_iter().for_each(|e| {
+        v.errors().iter().for_each(|e| {
             match e.1 {
                 ValidationErrorsKind::Struct(s) => {
                     let messages = <dyn Validate>::as_lett_error(s);
                     error_messages.extend(messages);
                 }
                 ValidationErrorsKind::List(l) => {
-                    l.into_iter().for_each(|e| {
+                    l.iter().for_each(|e| {
                         let messages = <dyn Validate>::as_lett_error(e.1);
                         error_messages.extend(messages);
                     });
                 }
                 ValidationErrorsKind::Field(f) => {
-                    f.into_iter().for_each(|e| {
+                    f.iter().for_each(|e| {
                         error_messages.push(
                             e.message
                                 .clone()

@@ -1,0 +1,1 @@
+pub trait ManagerTrait<D> {}

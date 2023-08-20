@@ -2,12 +2,11 @@
 
 use std::vec;
 
-use sea_orm_migration::{
-    prelude::*,
-    sea_orm::{DbBackend, Schema},
-};
+use sea_orm_migration::prelude::*;
 
-use entity::user::{self, Gender, UserType};
+use entity::user::{self, UserTypeEnum};
+
+use crate::utils::migrator_utils;
 
 pub struct Migration;
 
@@ -21,13 +20,9 @@ impl MigrationName for Migration {
 impl MigrationTrait for Migration {
     // Define how to apply this migration: Create the User table.
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        let db_postgres = DbBackend::Postgres;
-        let connection = manager.get_connection();
-        let schema = Schema::new(db_postgres);
-        let create_stms = vec![
-            schema.create_enum_from_active_enum::<UserType>(),
-            schema.create_enum_from_active_enum::<Gender>(),
-        ];
+        let (db_postgres, connection, schema) = migrator_utils(manager);
+
+        let create_stms = vec![schema.create_enum_from_active_enum::<UserTypeEnum>()];
 
         let stms = create_stms
             .iter()
