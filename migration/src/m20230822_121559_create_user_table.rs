@@ -6,6 +6,8 @@ use sea_orm_migration::{
     sea_query::extension::postgres::Type,
 };
 
+use crate::m20230822_144020_create_club_table::Club;
+
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
@@ -13,6 +15,10 @@ pub struct Migration;
 impl MigrationTrait for Migration {
     // Define how to apply this migration: Create the User table.
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+        manager
+            .drop_type(Type::drop().name(UserType::Table).if_exists().to_owned())
+            .await?;
+
         //Create UserType Enum type
         manager
             .create_type(
@@ -46,6 +52,14 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(User::Name).string().not_null())
                     .col(ColumnDef::new(User::Surname).string().not_null())
                     .col(ColumnDef::new(User::ClubId).integer().null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_user_club_id")
+                            .from(User::Table, User::ClubId)
+                            .to(Club::Table, Club::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade),
+                    )
                     .col(
                         ColumnDef::new(User::CreatedAt)
                             .timestamp_with_time_zone()
