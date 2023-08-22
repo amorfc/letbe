@@ -1,5 +1,6 @@
 use anyhow::{bail, Result};
 use entity::{sea_orm_active_enums::UserTypeEnum, user as UserEntity};
+use sea_orm::prelude::DateTimeWithTimeZone;
 
 use crate::{
     services::proto::user::{RegisteredUserResponseData, UserType as ResponseUserType},
@@ -13,8 +14,10 @@ pub struct DomainUserModel {
     pub email: String,
     pub password: String,
     pub user_type: DomainUserType,
-    // pub created_at: String,
-    // pub updated_at: String,
+    pub club_id: Option<i32>,
+    pub created_at: DateTimeWithTimeZone,
+    pub updated_at: Option<DateTimeWithTimeZone>,
+    pub deleted_at: Option<DateTimeWithTimeZone>,
 }
 
 impl DomainUserModel {
@@ -37,6 +40,10 @@ impl From<UserEntity::Model> for DomainUserModel {
             email: value.email,
             password: value.password,
             user_type: DomainUserType::from(value.user_type),
+            club_id: value.club_id,
+            created_at: value.created_at,
+            updated_at: value.updated_at,
+            deleted_at: value.deleted_at,
         }
     }
 }

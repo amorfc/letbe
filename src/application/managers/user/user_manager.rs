@@ -91,6 +91,10 @@ impl From<user::ActiveModel> for DomainUserModel {
             password: value.password,
             surname: value.surname,
             user_type: value.user_type.into(),
+            club_id: value.club_id,
+            created_at: value.created_at,
+            updated_at: value.updated_at,
+            deleted_at: value.deleted_at,
         }
     }
 }
