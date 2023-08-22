@@ -3,10 +3,7 @@ use entity::{sea_orm_active_enums::UserTypeEnum, user as UserEntity};
 use sea_orm::prelude::DateTimeWithTimeZone;
 use sea_orm::TryIntoModel;
 
-use crate::{
-    services::proto::user::{RegisteredUserResponseData, UserType as ResponseUserType},
-    shared::utils::hasher::LettHasher,
-};
+use crate::shared::utils::hasher::LettHasher;
 
 pub struct DomainUserModel {
     pub id: i32,
@@ -85,31 +82,6 @@ impl From<UserTypeEnum> for DomainUserType {
             UserTypeEnum::Student => DomainUserType::Student,
             UserTypeEnum::Guest => DomainUserType::Guest,
             UserTypeEnum::Other => DomainUserType::Other,
-        }
-    }
-}
-
-impl From<DomainUserType> for ResponseUserType {
-    fn from(value: DomainUserType) -> Self {
-        match value {
-            DomainUserType::Corporation => ResponseUserType::Corporation,
-            DomainUserType::Tutor => ResponseUserType::Tutor,
-            DomainUserType::Member => ResponseUserType::Member,
-            DomainUserType::Student => ResponseUserType::Student,
-            DomainUserType::Guest => ResponseUserType::Guest,
-            _ => ResponseUserType::Other,
-        }
-    }
-}
-
-impl From<DomainUserModel> for RegisteredUserResponseData {
-    fn from(val: DomainUserModel) -> Self {
-        RegisteredUserResponseData {
-            id: val.id,
-            name: val.name,
-            surname: val.surname,
-            email: val.email,
-            user_type: ResponseUserType::from(val.user_type).into(),
         }
     }
 }
