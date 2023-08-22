@@ -4,7 +4,7 @@ use crate::{
     application::{
         domain::models::club::domain_club_model::DomainClubModel,
         managers::common::manager::ManagerTrait,
-        repositories::user::user_repository::ClubRepositoryImpl,
+        repositories::club::club_repository::ClubRepositoryImpl,
     },
     infra::db_initializor::LetDbConnection,
     services::common::response::response_status::LettResError,
