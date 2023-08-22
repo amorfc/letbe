@@ -1,5 +1,5 @@
 use anyhow::{bail, Result};
-use entity::user as UserEntity;
+use entity::{sea_orm_active_enums::UserTypeEnum, user as UserEntity};
 
 use crate::{
     services::proto::user::{RegisteredUserResponseData, UserType as ResponseUserType},
@@ -42,15 +42,23 @@ impl From<UserEntity::Model> for DomainUserModel {
 }
 
 pub enum DomainUserType {
-    Individual,
     Corporation,
+    Tutor,
+    Member,
+    Student,
+    Guest,
+    Other,
 }
 
-impl From<UserEntity::UserTypeEnum> for DomainUserType {
-    fn from(value: UserEntity::UserTypeEnum) -> Self {
+impl From<UserTypeEnum> for DomainUserType {
+    fn from(value: UserTypeEnum) -> Self {
         match value {
-            UserEntity::UserTypeEnum::Individual => DomainUserType::Individual,
-            UserEntity::UserTypeEnum::Corporation => DomainUserType::Corporation,
+            UserTypeEnum::Corporation => DomainUserType::Corporation,
+            UserTypeEnum::Tutor => DomainUserType::Tutor,
+            UserTypeEnum::Member => DomainUserType::Member,
+            UserTypeEnum::Student => DomainUserType::Student,
+            UserTypeEnum::Guest => DomainUserType::Guest,
+            UserTypeEnum::Other => DomainUserType::Other,
         }
     }
 }
@@ -58,8 +66,12 @@ impl From<UserEntity::UserTypeEnum> for DomainUserType {
 impl From<DomainUserType> for ResponseUserType {
     fn from(value: DomainUserType) -> Self {
         match value {
-            DomainUserType::Individual => ResponseUserType::Individual,
             DomainUserType::Corporation => ResponseUserType::Corporation,
+            DomainUserType::Tutor => ResponseUserType::Tutor,
+            DomainUserType::Member => ResponseUserType::Member,
+            DomainUserType::Student => ResponseUserType::Student,
+            DomainUserType::Guest => ResponseUserType::Guest,
+            _ => ResponseUserType::Other,
         }
     }
 }

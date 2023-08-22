@@ -18,8 +18,12 @@ message RegisterUserRequest {
 }
 
 enum UserType{
-    INDIVIDUAL = 0;
-    CORPORATION = 1;
+    CORPORATION = 0;
+    Tutor = 1;
+    Member = 2;
+    Student = 3;
+    Guest = 4;
+    Other = 5;
 }
 
 message RegisterUserResponse {
