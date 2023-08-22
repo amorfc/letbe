@@ -1,8 +1,9 @@
-// m20220101_000003_create_user_table.rs
+// m20220101_000002_create_enum.rs
 
+use std::vec;
+
+use entity::{sea_orm_active_enums::UserTypeEnum, user};
 use sea_orm_migration::prelude::*;
-
-use entity::user::{self};
 
 use crate::utils::migrator_utils;
 
@@ -15,13 +16,16 @@ impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         let (db_postgres, connection, schema) = migrator_utils(manager);
 
-        let table_create_stm = db_postgres.build(
-            &schema
-                .create_table_from_entity(user::Entity)
-                .if_not_exists()
-                .to_owned(),
-        );
-        connection.execute(table_create_stm).await?;
+        let create_stms = vec![schema.create_enum_from_active_enum::<UserTypeEnum>()];
+
+        let stms = create_stms
+            .iter()
+            .map(|stm| db_postgres.build(stm))
+            .collect::<Vec<_>>();
+
+        for stm in stms {
+            connection.execute(stm).await?;
+        }
 
         Ok(())
     }
@@ -33,5 +37,3 @@ impl MigrationTrait for Migration {
             .await
     }
 }
-
-impl Migration {}
