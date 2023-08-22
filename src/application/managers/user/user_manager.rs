@@ -1,6 +1,4 @@
 use anyhow::{anyhow, bail, Result};
-use entity::user;
-use sea_orm::TryIntoModel;
 
 use crate::{
     application::{
@@ -78,24 +76,6 @@ impl UserManagerTrait for UserManagerImpl {
         domain_user.verify_password(&login_user.password)?;
 
         Ok(domain_user)
-    }
-}
-
-impl From<user::ActiveModel> for DomainUserModel {
-    fn from(value: user::ActiveModel) -> Self {
-        let value = value.try_into_model().unwrap();
-        Self {
-            id: value.id,
-            name: value.name,
-            email: value.email,
-            password: value.password,
-            surname: value.surname,
-            user_type: value.user_type.into(),
-            club_id: value.club_id,
-            created_at: value.created_at,
-            updated_at: value.updated_at,
-            deleted_at: value.deleted_at,
-        }
     }
 }
 

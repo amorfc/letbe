@@ -1,6 +1,7 @@
 use anyhow::{bail, Result};
 use entity::{sea_orm_active_enums::UserTypeEnum, user as UserEntity};
 use sea_orm::prelude::DateTimeWithTimeZone;
+use sea_orm::TryIntoModel;
 
 use crate::{
     services::proto::user::{RegisteredUserResponseData, UserType as ResponseUserType},
@@ -40,6 +41,24 @@ impl From<UserEntity::Model> for DomainUserModel {
             email: value.email,
             password: value.password,
             user_type: DomainUserType::from(value.user_type),
+            club_id: value.club_id,
+            created_at: value.created_at,
+            updated_at: value.updated_at,
+            deleted_at: value.deleted_at,
+        }
+    }
+}
+
+impl From<UserEntity::ActiveModel> for DomainUserModel {
+    fn from(value: UserEntity::ActiveModel) -> Self {
+        let value = value.try_into_model().unwrap();
+        Self {
+            id: value.id,
+            name: value.name,
+            email: value.email,
+            password: value.password,
+            surname: value.surname,
+            user_type: value.user_type.into(),
             club_id: value.club_id,
             created_at: value.created_at,
             updated_at: value.updated_at,
