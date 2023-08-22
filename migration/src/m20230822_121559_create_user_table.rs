@@ -60,6 +60,7 @@ impl MigrationTrait for Migration {
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
                     )
+                    .if_not_exists()
                     .col(
                         ColumnDef::new(User::CreatedAt)
                             .timestamp_with_time_zone()
@@ -103,6 +104,8 @@ pub enum User {
     Name,
     Surname,
     ClubId,
+    Phone,
+    LocationId,
     CreatedAt,
     UpdatedAt,
     DeletedAt,

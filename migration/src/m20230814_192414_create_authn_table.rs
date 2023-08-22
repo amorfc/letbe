@@ -28,6 +28,7 @@ impl MigrationTrait for Migration {
                             .on_delete(ForeignKeyAction::Cascade)
                             .on_update(ForeignKeyAction::Cascade),
                     )
+                    .if_not_exists()
                     .col(ColumnDef::new(Authn::AccessToken).string().not_null())
                     .col(ColumnDef::new(Authn::RefreshToken).string().not_null())
                     .col(
