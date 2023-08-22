@@ -10,8 +10,8 @@ use crate::{
     services::{
         common::response::response_status::LettResError,
         user::{
-            login::login_request::LoginUser,
-            register::register_request::{NewUser, NewUserActiveModelWrapper},
+            login::request::LoginUser,
+            register::request::{NewUser, NewUserActiveModelWrapper},
         },
     },
 };

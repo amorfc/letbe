@@ -1,1 +1,1 @@
-pub mod register_request;
+pub mod request;
