@@ -24,11 +24,23 @@ pub struct Model {
 pub enum Relation {
     #[sea_orm(has_many = "super::authn::Entity")]
     Authn,
+    #[sea_orm(
+        belongs_to = "super::club::Entity",
+        from = "Column::ClubId",
+        to = "super::club::Column::Id"
+    )]
+    Club,
 }
 
 impl Related<super::authn::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Authn.def()
+    }
+}
+
+impl Related<super::club::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Club.def()
     }
 }
 
