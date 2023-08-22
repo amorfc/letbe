@@ -1,5 +1,7 @@
 use sea_orm_migration::prelude::*;
 
+use crate::m20230822_121559_create_user_table::User;
+
 #[derive(DeriveMigrationName)]
 pub struct Migration;
 
@@ -18,6 +20,14 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(Authn::UserId).integer().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_authn_user_id")
+                            .from(Authn::Table, Authn::UserId)
+                            .to(User::Table, User::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade),
+                    )
                     .col(ColumnDef::new(Authn::AccessToken).string().not_null())
                     .col(ColumnDef::new(Authn::RefreshToken).string().not_null())
                     .col(

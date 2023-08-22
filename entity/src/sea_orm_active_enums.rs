@@ -5,17 +5,17 @@ use sea_orm::entity::prelude::*;
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "user_type")]
 pub enum UserTypeEnum {
-    #[sea_orm(string_value = "corporation")]
+    #[sea_orm(string_value = "Corporation")]
     Corporation,
-    #[sea_orm(string_value = "tutor")]
+    #[sea_orm(string_value = "Tutor")]
     Tutor,
-    #[sea_orm(string_value = "member")]
+    #[sea_orm(string_value = "Member")]
     Member,
-    #[sea_orm(string_value = "student")]
+    #[sea_orm(string_value = "Student")]
     Student,
-    #[sea_orm(string_value = "guest")]
+    #[sea_orm(string_value = "Guest")]
     Guest,
-    #[sea_orm(string_value = "other")]
+    #[sea_orm(string_value = "Other")]
     Other,
 }
 
