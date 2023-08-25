@@ -6,8 +6,8 @@ use crate::{
     config::{init_environment_vars, ENV_CONFIG},
     infra::db_initializor::{DatabaseInitializer, DatabaseInitializerImpl},
     services::{
-        common::grpc_server::LetGrpcServer, proto::LETT_FILE_DESCRIPTOR_SET,
-        user::user_grpc_server::UserGrpcServer,
+        club::club_grpc_server::ClubGrpcServer, common::grpc_server::LetGrpcServer,
+        proto::LETT_FILE_DESCRIPTOR_SET, user::user_grpc_server::UserGrpcServer,
     },
 };
 
@@ -35,6 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Server::builder()
         .add_service(reflection_service)
         .add_service(UserGrpcServer::new().serve(db.clone()))
+        .add_service(ClubGrpcServer::new().serve(db))
         .serve(addr.parse().unwrap())
         .await?;
 
