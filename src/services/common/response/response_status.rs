@@ -19,8 +19,14 @@ pub enum LettResError {
     #[error("Internal error occured: {0}")]
     InternalServerError(String),
 
-    #[error("Unauthorized email please re login: {email:?}. {message:?}")]
-    Unauthorized { email: String, message: String },
+    #[error("Unauthorized {email:?}. {message:?}")]
+    Unauthorized {
+        email: Option<String>,
+        message: String,
+    },
+
+    #[error("Unauthenticated email please re login: {email:?}. {message:?}")]
+    Unauthenticated { email: String, message: String },
 
     #[error("Opss! Somethings went wrong. {0} ")]
     BadRequest(String),
@@ -46,7 +52,8 @@ impl LettResError {
             Self::NotFound { .. } => Code::NotFound,
             Self::InternalServerError(..) => Code::Internal,
             Self::BadRequest(..) => Code::InvalidArgument,
-            Self::Unauthorized { .. } => Code::Unauthenticated,
+            Self::Unauthorized { .. } => Code::PermissionDenied,
+            Self::Unauthenticated { .. } => Code::Unauthenticated,
             Self::DevInfo(..) => Code::Internal,
             Self::Other(..) => Code::Internal,
         }
