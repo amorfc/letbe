@@ -1,7 +1,6 @@
 use crate::{
     application::domain::models::authn::domain_authn_model::DomainAuthnModel,
-    services::proto::user::LoggedInUserResponseData,
-    shared::utils::proto::time::date_time_utc_to_prost_timestamp,
+    services::proto::user::LoggedInUserResponseData, shared::utils::datetime::LettDate,
 };
 
 impl From<DomainAuthnModel> for LoggedInUserResponseData {
@@ -9,7 +8,7 @@ impl From<DomainAuthnModel> for LoggedInUserResponseData {
         Self {
             access_token: val.access_token,
             refresh_token: val.refresh_token,
-            expires_at: Some(date_time_utc_to_prost_timestamp(val.expired_time)),
+            expires_at: LettDate::as_response_string(val.expired_time),
         }
     }
 }
