@@ -5,7 +5,10 @@ use tonic::transport::Server;
 use crate::{
     config::{init_environment_vars, ENV_CONFIG},
     infra::db_initializor::{DatabaseInitializer, DatabaseInitializerImpl},
-    services::{common::grpc_server::LetGrpcServer, user::user_grpc_server::UserGrpcServer},
+    services::{
+        common::grpc_server::LetGrpcServer, proto::LETT_FILE_DESCRIPTOR_SET,
+        user::user_grpc_server::UserGrpcServer,
+    },
 };
 
 pub mod application;
@@ -22,7 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Migrator::up(&*db, None).await?;
 
     let reflection_service = tonic_reflection::server::Builder::configure()
-        .register_encoded_file_descriptor_set(UserGrpcServer::descriptor())
+        .register_encoded_file_descriptor_set(LETT_FILE_DESCRIPTOR_SET)
         .build()
         .unwrap();
 
