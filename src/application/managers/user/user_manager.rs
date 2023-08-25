@@ -1,4 +1,5 @@
 use anyhow::{anyhow, bail, Result};
+use entity::sea_orm_active_enums::UserTypeEnum;
 
 use crate::{
     application::{
@@ -44,6 +45,23 @@ impl UserManagerImpl {
         let find_user = self.repo.find_user_by_email(email).await?;
         if let Some(exists_user) = find_user {
             bail!("User with email {} already exists", exists_user.email);
+        }
+
+        Ok(())
+    }
+
+    pub async fn can_create_club(&self, user_id: i32) -> Result<(), LettResError> {
+        let find_user = self.repo.find_user_by_id(user_id).await?;
+        let user = find_user.ok_or(LettResError::NotFound {
+            entity: "User".to_string(),
+            id: user_id.to_string(),
+        })?;
+
+        if user.user_type != UserTypeEnum::Corporation {
+            return Err(LettResError::Unauthorized {
+                email: Some(user.email),
+                message: "You are not authorized to create club".to_string(),
+            });
         }
 
         Ok(())
