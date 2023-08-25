@@ -22,4 +22,8 @@ impl LettDate {
 
         DateTimeWithTimeZone::from(date_time_utc)
     }
+
+    pub fn as_response_string(date_time: DateTimeWithTimeZone) -> String {
+        date_time.to_rfc3339()
+    }
 }
