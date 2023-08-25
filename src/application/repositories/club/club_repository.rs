@@ -16,6 +16,11 @@ pub trait ClubRepositoryTrait:
         let a = self.save(user).await?;
         Ok(a)
     }
+    async fn find_club_by_name(&self, name: &str) -> Result<Option<ClubEntity::Model>> {
+        let res = self.find_one(ClubEntity::Column::Name.eq(name)).await?;
+
+        Ok(res)
+    }
 }
 
 // Implementation of UserRepositoryTrait
