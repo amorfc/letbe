@@ -4,6 +4,7 @@ package club;
 
 service Club {
     rpc CreateClub (CreateClubRequest) returns (CreateClubResponse) {};
+    rpc AddClubUser (AddClubUserRequest) returns (AddClubUserResponse) {};
 }
 
 message CreateClubRequest {
@@ -20,4 +21,17 @@ message CreatedClubResponseData {
     string name = 2;
     string legal_name = 3;
     string created_at = 4;
+}
+
+message AddClubUserRequest {
+    int32 user_id = 1;
+}
+
+message AddClubUserResponse{
+    AddClubUserResponseData data = 1;
+}
+
+message AddClubUserResponseData {
+    int32 user_id = 1;
+    int32 club_id = 2;
 }

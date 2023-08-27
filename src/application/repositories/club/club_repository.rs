@@ -25,7 +25,7 @@ pub trait ClubRepositoryTrait:
         let club = club.insert(&tx).await?;
 
         if let Some(owner_id) = club_owner_id {
-            self.update_user_club_id(owner_id, club.id, &tx).await?;
+            self.update_user_club_id_tx(owner_id, club.id, &tx).await?;
         }
 
         tx.commit().await?;
@@ -38,7 +38,15 @@ pub trait ClubRepositoryTrait:
         Ok(res)
     }
 
-    async fn update_user_club_id(
+    async fn update_user_club_id(&self, user_id: i32, club_id: i32) -> Result<UserEntity::Model> {
+        let tx = self.db_connection().begin().await?;
+        let res = self.update_user_club_id_tx(user_id, club_id, &tx).await?;
+        tx.commit().await?;
+
+        Ok(res)
+    }
+
+    async fn update_user_club_id_tx(
         &self,
         user_id: i32,
         club_id: i32,
@@ -74,6 +82,28 @@ impl ClubRepositoryTrait for ClubRepositoryImpl {}
 impl ClubRepositoryImpl {
     pub fn new(db_connection: LetDbConnection) -> Self {
         Self { db_connection }
+    }
+
+    pub async fn find_user_club_by_id(&self, user_id: i32) -> Result<Option<ClubEntity::Model>> {
+        let db = self.db_connection();
+
+        let user = UserEntity::Entity::find_by_id(user_id)
+            .filter(UserEntity::Column::DeletedAt.is_null())
+            .one(db)
+            .await?
+            .ok_or(anyhow!("User not found"))?;
+
+        let mut res = None;
+
+        if let Some(club_id) = user.club_id {
+            res = user
+                .find_related(ClubEntity::Entity)
+                .filter(ClubEntity::Column::Id.eq(club_id))
+                .one(db)
+                .await?;
+        }
+
+        Ok(res)
     }
 }
 
