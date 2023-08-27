@@ -27,6 +27,10 @@ impl DomainUserModel {
 
         Ok(Some(()))
     }
+
+    pub fn is_corporation(&self) -> bool {
+        self.user_type == DomainUserType::Corporation
+    }
 }
 
 impl From<UserEntity::Model> for DomainUserModel {
@@ -64,6 +68,7 @@ impl From<UserEntity::ActiveModel> for DomainUserModel {
     }
 }
 
+#[derive(Debug, PartialEq)]
 pub enum DomainUserType {
     Corporation,
     Tutor,
