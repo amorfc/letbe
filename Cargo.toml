@@ -13,6 +13,8 @@ entity = { path = "entity" }
 tokio = { version = "1.14.0", features = ["full"] }
 tonic = "0.9.2"
 tonic-reflection = "0.9.2"
+tower = "0.4.12"
+hyper = "0.14.13"
 prost = "0.11.9"
 prost-types = "0.11.9"
 validator = { version = "0.16.1", features = ["derive"] }
