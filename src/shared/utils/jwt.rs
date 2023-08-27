@@ -8,7 +8,7 @@ use crate::config::ENV_CONFIG;
 use super::datetime::LettDate;
 
 /// Our claims struct, it needs to derive `Serialize` and/or `Deserialize`
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct LettJwtClaims {
     pub user_id: i32,
     pub device_id: String,
