@@ -22,6 +22,8 @@ pub trait ClubManagerTrait: ManagerTrait<DomainClubModel> {
         user_context: Option<UserContextExt>,
     ) -> Result<DomainClubModel, LettResError>;
     async fn check_club_name_availability(&self, name: &str) -> Result<()>;
+    async fn find_user_club_by_id(&self, user_id: i32) -> Result<DomainClubModel, LettResError>;
+    async fn add_club_to_user(&self, user_id: i32, club_id: i32) -> Result<(), LettResError>;
 }
 
 // Implementation of UserManagerTrait
@@ -63,6 +65,23 @@ impl ClubManagerTrait for ClubManagerImpl {
         if let Some(exists_club) = find_club {
             bail!("Club with name {} already exists", exists_club.name);
         }
+
+        Ok(())
+    }
+
+    async fn find_user_club_by_id(&self, user_id: i32) -> Result<DomainClubModel, LettResError> {
+        let find_club = self.repo.find_user_club_by_id(user_id).await?;
+        let club = find_club.ok_or(LettResError::NotFound {
+            entity: "Club".to_string(),
+            id: "".to_string(),
+        })?;
+
+        let club_domain_model = DomainClubModel::from(club);
+        Ok(club_domain_model)
+    }
+
+    async fn add_club_to_user(&self, user_id: i32, club_id: i32) -> Result<(), LettResError> {
+        self.repo.update_user_club_id(user_id, club_id).await?;
 
         Ok(())
     }
