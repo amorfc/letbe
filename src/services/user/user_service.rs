@@ -12,11 +12,11 @@ use crate::{
             user_server::User as UserServer, LoginUserRequest, LoginUserResponse,
             RegisterUserRequest, RegisterUserResponse,
         },
-        user::register::register_request::NewUser,
+        user::register::request::NewUser,
     },
 };
 
-use super::login::login_request::LoginUser;
+use super::login::request::LoginUser;
 
 pub struct UserService<T: UserManagerTrait> {
     manager: T,

@@ -1,5 +1,5 @@
 use anyhow::Result;
-use entity::user as UserEntity;
+use entity::user::{self as UserEntity, Column};
 use sea_orm::entity::prelude::*;
 
 use crate::{
@@ -18,6 +18,11 @@ pub trait UserRepositoryTrait:
     }
     async fn find_user_by_email(&self, email: &str) -> Result<Option<UserEntity::Model>> {
         let res = self.find_one(UserEntity::Column::Email.eq(email)).await?;
+
+        Ok(res)
+    }
+    async fn find_user_by_id(&self, id: i32) -> Result<Option<UserEntity::Model>> {
+        let res = self.find_one(Column::Id.eq(id)).await?;
 
         Ok(res)
     }

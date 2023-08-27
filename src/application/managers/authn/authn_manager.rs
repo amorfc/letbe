@@ -24,9 +24,14 @@ pub trait AuthnManagerTrait: ManagerTrait<DomainAuthnModel> {
         &self,
         params: NewJwtParams,
     ) -> Result<DomainAuthnModel, LettResError>;
+    async fn verify_jwt_token(
+        &self,
+        params: VerifyJwtTokenParams,
+    ) -> Result<DomainAuthnModel, LettResError>;
 }
 
 // Implementation of AuthnManagerTrait
+#[derive(Clone, Debug)]
 pub struct AuthnManagerImpl {
     repo: AuthnRepositoryImpl,
 }
@@ -66,6 +71,24 @@ impl AuthnManagerTrait for AuthnManagerImpl {
         let authn = self.repo.create_authn_token(new_authn_token).await?;
         Ok(authn.into())
     }
+    async fn verify_jwt_token(
+        &self,
+        params: VerifyJwtTokenParams,
+    ) -> Result<DomainAuthnModel, LettResError> {
+        let token = params.token;
+
+        let jwt_claims = LettJwt::expose_jwt(&token)?;
+        let authn = self
+            .repo
+            .find_active_authn_token(jwt_claims.clone())
+            .await?
+            .ok_or(LettResError::NotFound {
+                entity: "Auth".to_string(),
+                id: jwt_claims.user_id.to_string(),
+            })?;
+
+        Ok(authn.into())
+    }
 }
 
 impl From<AuthnEntity::ActiveModel> for DomainAuthnModel {
@@ -91,4 +114,8 @@ impl ManagerTrait<DomainAuthnModel> for AuthnManagerImpl {}
 pub struct NewJwtParams {
     pub user_id: i32,
     pub device_id: String,
+}
+
+pub struct VerifyJwtTokenParams {
+    pub token: String,
 }

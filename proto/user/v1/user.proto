@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package user;
 
-import "google/protobuf/timestamp.proto";
-
 service User {
     rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse) {};
     rpc LoginUser (LoginUserRequest) returns (LoginUserResponse) {};
@@ -18,8 +16,12 @@ message RegisterUserRequest {
 }
 
 enum UserType{
-    INDIVIDUAL = 0;
-    CORPORATION = 1;
+    CORPORATION = 0;
+    Tutor = 1;
+    Member = 2;
+    Student = 3;
+    Guest = 4;
+    Other = 5;
 }
 
 message RegisterUserResponse {
@@ -47,5 +49,5 @@ message LoginUserResponse {
 message LoggedInUserResponseData{
     string access_token = 1;
     string refresh_token = 2;
-    google.protobuf.Timestamp expires_at = 3;
+    string expires_at = 3;
 }

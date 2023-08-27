@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package club;
+
+service Club {
+    rpc CreateClub (CreateClubRequest) returns (CreateClubResponse) {};
+}
+
+message CreateClubRequest {
+    string name = 1;
+    string legal_name = 2;
+}
+
+message CreateClubResponse{
+    CreatedClubResponseData data = 1;
+}
+
+message CreatedClubResponseData {
+    int32 id = 1;
+    string name = 2;
+    string legal_name = 3;
+    string created_at = 4;
+}

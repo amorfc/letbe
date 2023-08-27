@@ -1,16 +1,20 @@
 use std::fmt::Display;
 
 use anyhow::{anyhow, Result};
-use entity::user as UserEntity;
+use entity::{sea_orm_active_enums::UserTypeEnum, user as UserEntity};
 use lazy_static::lazy_static;
 use regex::Regex;
 use sea_orm::ActiveValue;
 use validator::Validate;
 
-use crate::{services::proto::user::RegisterUserRequest, shared::utils::hasher::LettHasher};
+use crate::{
+    services::proto::user::RegisterUserRequest,
+    shared::utils::{datetime::LettDate, hasher::LettHasher},
+};
 
 lazy_static! {
-    static ref REGEX_USER_TYPE: Regex = Regex::new(r"^\s*(Individual|Corporation)\s*$").unwrap();
+    static ref REGEX_USER_TYPE: Regex =
+        Regex::new(r"^\s*(Corporation|Tutor|Member|Student|Guest|Other)\s*$").unwrap();
 }
 
 #[derive(Debug, Validate, Clone, Default)]
@@ -60,16 +64,23 @@ impl NewUser {
 }
 
 pub enum RequestUserType {
-    Individual,
     Corporation,
+    Tutor,
+    Member,
+    Student,
+    Guest,
+    Other,
 }
 
 impl From<i32> for RequestUserType {
     fn from(value: i32) -> Self {
         match value {
-            0 => RequestUserType::Individual,
-            1 => RequestUserType::Corporation,
-            _ => panic!("Invalid user type"),
+            0 => RequestUserType::Corporation,
+            1 => RequestUserType::Tutor,
+            2 => RequestUserType::Member,
+            3 => RequestUserType::Student,
+            4 => RequestUserType::Guest,
+            _ => RequestUserType::Other,
         }
     }
 }
@@ -77,9 +88,12 @@ impl From<i32> for RequestUserType {
 impl From<String> for RequestUserType {
     fn from(value: String) -> Self {
         match value.as_str() {
-            "Individual" => RequestUserType::Individual,
             "Corporation" => RequestUserType::Corporation,
-            _ => panic!("Invalid user type"),
+            "Tutor" => RequestUserType::Tutor,
+            "Member" => RequestUserType::Member,
+            "Student" => RequestUserType::Student,
+            "Guest" => RequestUserType::Guest,
+            _ => RequestUserType::Other,
         }
     }
 }
@@ -87,8 +101,12 @@ impl From<String> for RequestUserType {
 impl Display for RequestUserType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let value = match self {
-            RequestUserType::Individual => "Individual",
             RequestUserType::Corporation => "Corporation",
+            RequestUserType::Tutor => "Tutor",
+            RequestUserType::Member => "Member",
+            RequestUserType::Student => "Student",
+            RequestUserType::Guest => "Guest",
+            RequestUserType::Other => "Other",
         };
         write!(f, "{}", value)
     }
@@ -97,8 +115,12 @@ impl Display for RequestUserType {
 impl RequestUserType {
     pub fn to_int(&self) -> i32 {
         match self {
-            RequestUserType::Individual => 0,
-            RequestUserType::Corporation => 1,
+            RequestUserType::Corporation => 0,
+            RequestUserType::Tutor => 1,
+            RequestUserType::Member => 2,
+            RequestUserType::Student => 3,
+            RequestUserType::Guest => 4,
+            RequestUserType::Other => 5,
         }
     }
 }
@@ -131,13 +153,16 @@ impl TryFrom<NewUser> for NewUserActiveModelWrapper {
             .salt
             .ok_or(anyhow!("Salt could not generated hashed"))?;
 
+        let created_at = LettDate::now_dt_with_tz();
+
         Ok(Self(UserEntity::ActiveModel {
             name: ActiveValue::set(value.name),
             surname: ActiveValue::set(value.surname),
             email: ActiveValue::set(value.email),
             password: ActiveValue::set(password),
             salt: ActiveValue::set(salt),
-            user_type: ActiveValue::set(UserEntity::UserTypeEnum::from(value.user_type)),
+            user_type: ActiveValue::set(UserTypeEnum::from(value.user_type)),
+            created_at: ActiveValue::Set(created_at),
             ..Default::default()
         }))
     }

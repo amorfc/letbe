@@ -2,11 +2,7 @@ use entity::authn as AuthnEntity;
 
 use sea_orm::prelude::DateTimeWithTimeZone;
 
-use crate::{
-    services::proto::user::LoggedInUserResponseData,
-    shared::utils::proto::time::date_time_utc_to_prost_timestamp,
-};
-
+#[derive(Clone, Debug)]
 pub struct DomainAuthnModel {
     pub id: i32,
     pub user_id: i32,
@@ -33,16 +29,6 @@ impl From<AuthnEntity::Model> for DomainAuthnModel {
             revoked_at: value.revoked_at,
             created_at: value.created_at,
             updated_at: value.updated_at,
-        }
-    }
-}
-
-impl From<DomainAuthnModel> for LoggedInUserResponseData {
-    fn from(val: DomainAuthnModel) -> Self {
-        Self {
-            access_token: val.access_token,
-            refresh_token: val.refresh_token,
-            expires_at: Some(date_time_utc_to_prost_timestamp(val.expired_time)),
         }
     }
 }

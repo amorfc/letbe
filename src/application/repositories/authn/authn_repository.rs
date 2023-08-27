@@ -5,7 +5,7 @@ use sea_orm::{entity::prelude::*, ActiveValue, TransactionTrait};
 use crate::{
     application::repositories::common::repository::{DbConnectionProvider, RepositoryTrait},
     infra::db_initializor::LetDbConnection,
-    shared::utils::datetime::LettDate,
+    shared::utils::{datetime::LettDate, jwt::LettJwtClaims},
 };
 
 // User Manager Trait that requires AuthnRepositoryTrait
@@ -35,9 +35,26 @@ pub trait AuthnRepositoryTrait:
 
         Ok(authn_token)
     }
+
+    async fn find_active_authn_token(
+        &self,
+        token_claims: LettJwtClaims,
+    ) -> Result<Option<AuthnEntity::Model>> {
+        let token_claims_date_time = LettDate::dt_with_tz(token_claims.exp)?;
+        let auth_token = AuthnEntity::Entity::find()
+            .filter(AuthnEntity::Column::UserId.eq(token_claims.user_id))
+            .filter(AuthnEntity::Column::DeviceId.eq(token_claims.device_id))
+            .filter(AuthnEntity::Column::RevokedAt.is_null())
+            .filter(AuthnEntity::Column::ExpiredTime.gte(token_claims_date_time))
+            .one(self.db_connection())
+            .await?;
+
+        Ok(auth_token)
+    }
 }
 
 // Implementation of AuthnRepositoryTrait
+#[derive(Clone, Debug)]
 pub struct AuthnRepositoryImpl {
     db_connection: LetDbConnection,
 }

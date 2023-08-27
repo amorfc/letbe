@@ -2,19 +2,13 @@
 
 use std::vec;
 
+use entity::{sea_orm_active_enums::UserTypeEnum, user};
 use sea_orm_migration::prelude::*;
-
-use entity::user::{self, UserTypeEnum};
 
 use crate::utils::migrator_utils;
 
+#[derive(DeriveMigrationName)]
 pub struct Migration;
-
-impl MigrationName for Migration {
-    fn name(&self) -> &str {
-        "m20220101_000002_create_enum" // Make sure this matches with the file name
-    }
-}
 
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {

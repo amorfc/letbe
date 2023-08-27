@@ -1,6 +1,5 @@
 use anyhow::{anyhow, bail, Result};
-use entity::user;
-use sea_orm::TryIntoModel;
+use entity::sea_orm_active_enums::UserTypeEnum;
 
 use crate::{
     application::{
@@ -12,8 +11,8 @@ use crate::{
     services::{
         common::response::response_status::LettResError,
         user::{
-            login::login_request::LoginUser,
-            register::register_request::{NewUser, NewUserActiveModelWrapper},
+            login::request::LoginUser,
+            register::request::{NewUser, NewUserActiveModelWrapper},
         },
     },
 };
@@ -45,7 +44,24 @@ impl UserManagerImpl {
     pub async fn check_email_availability(&self, email: &str) -> Result<()> {
         let find_user = self.repo.find_user_by_email(email).await?;
         if let Some(exists_user) = find_user {
-            bail!("User with email ${} already exists", exists_user.email);
+            bail!("User with email {} already exists", exists_user.email);
+        }
+
+        Ok(())
+    }
+
+    pub async fn can_create_club(&self, user_id: i32) -> Result<(), LettResError> {
+        let find_user = self.repo.find_user_by_id(user_id).await?;
+        let user = find_user.ok_or(LettResError::NotFound {
+            entity: "User".to_string(),
+            id: user_id.to_string(),
+        })?;
+
+        if user.user_type != UserTypeEnum::Corporation {
+            return Err(LettResError::Unauthorized {
+                email: Some(user.email),
+                message: "You are not authorized to create club".to_string(),
+            });
         }
 
         Ok(())
@@ -78,20 +94,6 @@ impl UserManagerTrait for UserManagerImpl {
         domain_user.verify_password(&login_user.password)?;
 
         Ok(domain_user)
-    }
-}
-
-impl From<user::ActiveModel> for DomainUserModel {
-    fn from(value: user::ActiveModel) -> Self {
-        let value = value.try_into_model().unwrap();
-        Self {
-            id: value.id,
-            name: value.name,
-            email: value.email,
-            password: value.password,
-            surname: value.surname,
-            user_type: value.user_type.into(),
-        }
     }
 }
 

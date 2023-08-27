@@ -1,10 +1,9 @@
 use anyhow::{bail, Result};
-use entity::user as UserEntity;
+use entity::{sea_orm_active_enums::UserTypeEnum, user as UserEntity};
+use sea_orm::prelude::DateTimeWithTimeZone;
+use sea_orm::TryIntoModel;
 
-use crate::{
-    services::proto::user::{RegisteredUserResponseData, UserType as ResponseUserType},
-    shared::utils::hasher::LettHasher,
-};
+use crate::shared::utils::hasher::LettHasher;
 
 pub struct DomainUserModel {
     pub id: i32,
@@ -13,8 +12,10 @@ pub struct DomainUserModel {
     pub email: String,
     pub password: String,
     pub user_type: DomainUserType,
-    // pub created_at: String,
-    // pub updated_at: String,
+    pub club_id: Option<i32>,
+    pub created_at: DateTimeWithTimeZone,
+    pub updated_at: Option<DateTimeWithTimeZone>,
+    pub deleted_at: Option<DateTimeWithTimeZone>,
 }
 
 impl DomainUserModel {
@@ -37,41 +38,50 @@ impl From<UserEntity::Model> for DomainUserModel {
             email: value.email,
             password: value.password,
             user_type: DomainUserType::from(value.user_type),
+            club_id: value.club_id,
+            created_at: value.created_at,
+            updated_at: value.updated_at,
+            deleted_at: value.deleted_at,
+        }
+    }
+}
+
+impl From<UserEntity::ActiveModel> for DomainUserModel {
+    fn from(value: UserEntity::ActiveModel) -> Self {
+        let value = value.try_into_model().unwrap();
+        Self {
+            id: value.id,
+            name: value.name,
+            email: value.email,
+            password: value.password,
+            surname: value.surname,
+            user_type: value.user_type.into(),
+            club_id: value.club_id,
+            created_at: value.created_at,
+            updated_at: value.updated_at,
+            deleted_at: value.deleted_at,
         }
     }
 }
 
 pub enum DomainUserType {
-    Individual,
     Corporation,
+    Tutor,
+    Member,
+    Student,
+    Guest,
+    Other,
 }
 
-impl From<UserEntity::UserTypeEnum> for DomainUserType {
-    fn from(value: UserEntity::UserTypeEnum) -> Self {
+impl From<UserTypeEnum> for DomainUserType {
+    fn from(value: UserTypeEnum) -> Self {
         match value {
-            UserEntity::UserTypeEnum::Individual => DomainUserType::Individual,
-            UserEntity::UserTypeEnum::Corporation => DomainUserType::Corporation,
-        }
-    }
-}
-
-impl From<DomainUserType> for ResponseUserType {
-    fn from(value: DomainUserType) -> Self {
-        match value {
-            DomainUserType::Individual => ResponseUserType::Individual,
-            DomainUserType::Corporation => ResponseUserType::Corporation,
-        }
-    }
-}
-
-impl From<DomainUserModel> for RegisteredUserResponseData {
-    fn from(val: DomainUserModel) -> Self {
-        RegisteredUserResponseData {
-            id: val.id,
-            name: val.name,
-            surname: val.surname,
-            email: val.email,
-            user_type: ResponseUserType::from(val.user_type).into(),
+            UserTypeEnum::Corporation => DomainUserType::Corporation,
+            UserTypeEnum::Tutor => DomainUserType::Tutor,
+            UserTypeEnum::Member => DomainUserType::Member,
+            UserTypeEnum::Student => DomainUserType::Student,
+            UserTypeEnum::Guest => DomainUserType::Guest,
+            UserTypeEnum::Other => DomainUserType::Other,
         }
     }
 }
