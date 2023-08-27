@@ -12,8 +12,8 @@ use crate::{
 pub trait ClubRepositoryTrait:
     RepositoryTrait<ClubEntity::ActiveModel, ClubEntity::Entity>
 {
-    async fn create_club(&self, user: ClubEntity::ActiveModel) -> Result<ClubEntity::ActiveModel> {
-        let a = self.save(user).await?;
+    async fn create_club(&self, club: ClubEntity::ActiveModel) -> Result<ClubEntity::ActiveModel> {
+        let a = self.save(club).await?;
         Ok(a)
     }
     async fn find_club_by_name(&self, name: &str) -> Result<Option<ClubEntity::Model>> {
