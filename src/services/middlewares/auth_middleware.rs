@@ -66,21 +66,20 @@ where
         let auth_manager = self.auth_manager.clone();
 
         Box::pin(async move {
-            let mut user_context: Option<UserContextExt> = None;
-
             if let Some(token) = MiddlewareUtil::extract_token(&req) {
                 match auth_manager
                     .verify_jwt_token(VerifyJwtTokenParams { token })
                     .await
                 {
-                    Ok(auth) => user_context = Some(auth.into()),
+                    Ok(auth) => {
+                        let user_context: UserContextExt = auth.into();
+                        req.extensions_mut().insert(user_context);
+                    }
                     Err(_) => {
                         todo!("Handle error here")
                     }
                 }
             };
-
-            req.extensions_mut().insert(user_context);
 
             let response = inner.call(req).await?;
 
