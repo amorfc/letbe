@@ -11,10 +11,7 @@ use crate::{
     application::managers::authn::authn_manager::{
         AuthnManagerImpl, AuthnManagerTrait, VerifyJwtTokenParams,
     },
-    services::{
-        extensions::user_context_req::{UserContext, UserGrpcReqExt},
-        middlewares::utils::MiddlewareUtil,
-    },
+    services::{extensions::user_context::UserContextExt, middlewares::utils::MiddlewareUtil},
 };
 
 #[derive(Debug, Clone)]
@@ -69,7 +66,7 @@ where
         let auth_manager = self.auth_manager.clone();
 
         Box::pin(async move {
-            let mut user_context: Option<UserContext> = None;
+            let mut user_context: Option<UserContextExt> = None;
 
             if let Some(token) = MiddlewareUtil::extract_token(&req) {
                 match auth_manager
@@ -83,12 +80,7 @@ where
                 }
             };
 
-            let ext = UserGrpcReqExt {
-                uri: req.uri().clone(),
-                user_context,
-            };
-
-            req.extensions_mut().insert(ext);
+            req.extensions_mut().insert(user_context);
 
             let response = inner.call(req).await?;
 
