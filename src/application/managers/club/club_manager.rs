@@ -10,12 +10,17 @@ use crate::{
     services::{
         club::creation::request::{NewClub, NewClubActiveModelWrapper},
         common::response::response_status::LettResError,
+        extensions::user_context::UserContextExt,
     },
 };
 
 #[tonic::async_trait]
 pub trait ClubManagerTrait: ManagerTrait<DomainClubModel> {
-    async fn club_creation(&self, new_club: NewClub) -> Result<DomainClubModel, LettResError>;
+    async fn club_creation(
+        &self,
+        new_club: NewClub,
+        user_context: Option<UserContextExt>,
+    ) -> Result<DomainClubModel, LettResError>;
     async fn check_club_name_availability(&self, name: &str) -> Result<()>;
 }
 
@@ -34,12 +39,20 @@ impl ClubManagerImpl {
 
 #[tonic::async_trait]
 impl ClubManagerTrait for ClubManagerImpl {
-    async fn club_creation(&self, new_club: NewClub) -> Result<DomainClubModel, LettResError> {
+    async fn club_creation(
+        &self,
+        new_club: NewClub,
+        user_context: Option<UserContextExt>,
+    ) -> Result<DomainClubModel, LettResError> {
         self.check_club_name_availability(&new_club.name).await?;
 
+        let owner_id = user_context.map(|user| user.user_id);
         let new_club_active_model: NewClubActiveModelWrapper = new_club.into();
 
-        let res = self.repo.create_club(new_club_active_model.0).await?;
+        let res = self
+            .repo
+            .create_club(new_club_active_model.0, owner_id)
+            .await?;
 
         let club_domain_model = DomainClubModel::from(res);
         Ok(club_domain_model)

@@ -1,6 +1,10 @@
-use anyhow::Result;
+use anyhow::bail;
+use anyhow::{anyhow, Result};
 use entity::club as ClubEntity;
-use sea_orm::entity::prelude::*;
+use entity::user as UserEntity;
+use sea_orm::ActiveValue;
+use sea_orm::DatabaseTransaction;
+use sea_orm::{entity::prelude::*, TransactionTrait};
 
 use crate::{
     application::repositories::common::repository::{DbConnectionProvider, RepositoryTrait},
@@ -12,14 +16,50 @@ use crate::{
 pub trait ClubRepositoryTrait:
     RepositoryTrait<ClubEntity::ActiveModel, ClubEntity::Entity>
 {
-    async fn create_club(&self, club: ClubEntity::ActiveModel) -> Result<ClubEntity::ActiveModel> {
-        let a = self.save(club).await?;
-        Ok(a)
+    async fn create_club(
+        &self,
+        club: ClubEntity::ActiveModel,
+        club_owner_id: Option<i32>,
+    ) -> Result<ClubEntity::Model> {
+        let tx = self.db_connection().begin().await?;
+        let club = club.insert(&tx).await?;
+
+        if let Some(owner_id) = club_owner_id {
+            self.update_user_club_id(owner_id, club.id, &tx).await?;
+        }
+
+        tx.commit().await?;
+
+        Ok(club)
     }
     async fn find_club_by_name(&self, name: &str) -> Result<Option<ClubEntity::Model>> {
         let res = self.find_one(ClubEntity::Column::Name.eq(name)).await?;
 
         Ok(res)
+    }
+
+    async fn update_user_club_id(
+        &self,
+        user_id: i32,
+        club_id: i32,
+        tx: &DatabaseTransaction,
+    ) -> Result<UserEntity::Model> {
+        let user = UserEntity::Entity::find_by_id(user_id)
+            .filter(UserEntity::Column::DeletedAt.is_null())
+            .one(tx)
+            .await?
+            .ok_or(anyhow!("User not found"))?;
+
+        if let Some(club_id) = user.club_id {
+            bail!("User already has a club with id {}", club_id);
+        }
+
+        let mut user: UserEntity::ActiveModel = user.into();
+        user.club_id = ActiveValue::Set(Some(club_id));
+
+        let user = user.update(tx).await?;
+
+        Ok(user)
     }
 }
 
