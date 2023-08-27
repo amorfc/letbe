@@ -2,6 +2,7 @@ use entity::authn as AuthnEntity;
 
 use sea_orm::prelude::DateTimeWithTimeZone;
 
+#[derive(Clone, Debug)]
 pub struct DomainAuthnModel {
     pub id: i32,
     pub user_id: i32,

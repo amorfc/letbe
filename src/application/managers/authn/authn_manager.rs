@@ -27,6 +27,7 @@ pub trait AuthnManagerTrait: ManagerTrait<DomainAuthnModel> {
 }
 
 // Implementation of AuthnManagerTrait
+#[derive(Clone, Debug)]
 pub struct AuthnManagerImpl {
     repo: AuthnRepositoryImpl,
 }

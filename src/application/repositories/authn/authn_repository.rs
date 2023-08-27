@@ -38,6 +38,7 @@ pub trait AuthnRepositoryTrait:
 }
 
 // Implementation of AuthnRepositoryTrait
+#[derive(Clone, Debug)]
 pub struct AuthnRepositoryImpl {
     db_connection: LetDbConnection,
 }
