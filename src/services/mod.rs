@@ -1,5 +1,7 @@
 pub mod club;
 pub mod common;
+pub mod extensions;
+pub mod middlewares;
 pub mod user;
 
 pub(crate) mod proto {
