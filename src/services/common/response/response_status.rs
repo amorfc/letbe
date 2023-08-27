@@ -25,8 +25,8 @@ pub enum LettResError {
         message: String,
     },
 
-    #[error("Unauthenticated email please re login: {email:?}. {message:?}")]
-    Unauthenticated { email: String, message: String },
+    #[error("Unauthenticated id please re-login or refresh token: {id:?}. {message:?}")]
+    Unauthenticated { id: String, message: String },
 
     #[error("Opss! Somethings went wrong. {0} ")]
     BadRequest(String),
