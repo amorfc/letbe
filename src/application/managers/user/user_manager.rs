@@ -27,6 +27,7 @@ pub trait UserManagerTrait: ManagerTrait<DomainUserModel> {
         &self,
         input_login_user: LoginUser,
     ) -> Result<DomainUserModel, LettResError>;
+    async fn get_user_by_id(&self, user_id: i32) -> Result<DomainUserModel, LettResError>;
 }
 
 // Implementation of UserManagerTrait
@@ -66,6 +67,23 @@ impl UserManagerImpl {
 
         Ok(())
     }
+
+    pub async fn can_add_user_to_club(&self, user_id: i32) -> Result<(), LettResError> {
+        let find_user = self.repo.find_user_by_id(user_id).await?;
+        let user = find_user.ok_or(LettResError::NotFound {
+            entity: "User".to_string(),
+            id: user_id.to_string(),
+        })?;
+
+        if user.user_type != UserTypeEnum::Corporation {
+            return Err(LettResError::Unauthorized {
+                email: Some(user.email),
+                message: "You are not authorized to add user to a club".to_string(),
+            });
+        }
+
+        Ok(())
+    }
 }
 
 #[tonic::async_trait]
@@ -94,6 +112,15 @@ impl UserManagerTrait for UserManagerImpl {
         domain_user.verify_password(&login_user.password)?;
 
         Ok(domain_user)
+    }
+    async fn get_user_by_id(&self, user_id: i32) -> Result<DomainUserModel, LettResError> {
+        let find_user = self.repo.find_user_by_id(user_id).await?;
+        let user = find_user.ok_or(LettResError::NotFound {
+            entity: "User".to_string(),
+            id: user_id.to_string(),
+        })?;
+
+        Ok(user.into())
     }
 }
 
