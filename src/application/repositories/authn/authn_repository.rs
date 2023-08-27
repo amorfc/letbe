@@ -1,6 +1,6 @@
 use anyhow::Result;
 use entity::authn as AuthnEntity;
-use sea_orm::{entity::prelude::*, ActiveValue, Condition, TransactionTrait};
+use sea_orm::{entity::prelude::*, ActiveValue, TransactionTrait};
 
 use crate::{
     application::repositories::common::repository::{DbConnectionProvider, RepositoryTrait},
@@ -41,7 +41,6 @@ pub trait AuthnRepositoryTrait:
         token_claims: LettJwtClaims,
     ) -> Result<Option<AuthnEntity::Model>> {
         let token_claims_date_time = LettDate::dt_with_tz(token_claims.exp)?;
-        dbg!(&token_claims_date_time);
         let auth_token = AuthnEntity::Entity::find()
             .filter(AuthnEntity::Column::UserId.eq(token_claims.user_id))
             .filter(AuthnEntity::Column::DeviceId.eq(token_claims.device_id))
