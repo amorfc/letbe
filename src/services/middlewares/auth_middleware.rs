@@ -75,8 +75,9 @@ where
                         let user_context: UserContextExt = auth.into();
                         req.extensions_mut().insert(user_context);
                     }
-                    Err(_) => {
-                        todo!("Handle error here")
+                    Err(e) => {
+                        //Will be return auth error here
+                        dbg!(e);
                     }
                 }
             };
